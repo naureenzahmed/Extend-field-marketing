@@ -51,7 +51,7 @@ function renderHeader(route) {
   header.innerHTML = `
     <div class="header-left">
       <div class="wordmark">
-        <span class="wordmark-text">Extend</span>
+        <img src="assets/extend-logo.jpg" alt="" /><span class="wordmark-text">Extend</span>
       </div>
       <nav class="nav-tabs">
         ${Object.entries(PAGES).map(([key, p]) => `
