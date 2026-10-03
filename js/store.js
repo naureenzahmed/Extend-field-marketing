@@ -2,6 +2,11 @@ import { seedData } from './seed.js';
 
 const STORAGE_KEY = 'extendFieldMarketingData.v1';
 
+const SCHEMA_KEYS = {
+  events: ['eventsNyc', 'eventsSf'],
+  conferences: ['externalConferences'],
+};
+
 let data = load();
 
 function load() {
@@ -10,15 +15,18 @@ function load() {
     if (raw) {
       const stored = JSON.parse(raw);
       const fresh = seedData();
-      // Backfill any keys added to the seed after this data was first saved.
       let changed = false;
-      // Events pages moved to External / Internal sections with new columns.
-      if (stored.eventsSchema !== fresh.eventsSchema) {
-        stored.eventsNyc = fresh.eventsNyc;
-        stored.eventsSf = fresh.eventsSf;
-        stored.eventsSchema = fresh.eventsSchema;
-        changed = true;
+      // Reseed pages whose section layout changed since this data was saved.
+      const versions = stored.schemaVersions || { events: stored.eventsSchema };
+      for (const [name, keys] of Object.entries(SCHEMA_KEYS)) {
+        if (versions[name] !== fresh.schemaVersions[name]) {
+          keys.forEach((k) => { stored[k] = fresh[k]; });
+          changed = true;
+        }
       }
+      if (changed) stored.schemaVersions = fresh.schemaVersions;
+      delete stored.eventsSchema;
+      // Backfill any keys added to the seed after this data was first saved.
       for (const key of Object.keys(fresh)) {
         if (!(key in stored)) { stored[key] = fresh[key]; changed = true; }
       }

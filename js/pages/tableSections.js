@@ -44,14 +44,14 @@ export function renderTableSectionsPage(container, key, opts) {
   wireEvents(sections, rerender);
 }
 
-function renderSection(s, opts) {
+export function renderSection(s, opts) {
   return `
     <div class="card doc-card" id="${s.id}">
       <div class="toolbar" style="margin-bottom:6px;">
         <h4 style="margin:0;">${escapeHtml(s.title)}</h4>
         <div style="display:flex; gap:6px;">
           <button class="btn btn-ghost" data-add-row="${s.id}" style="padding:4px 8px;">+ ${escapeHtml(opts.rowLabel || 'Add row')}</button>
-          <button class="btn btn-ghost btn-danger" data-remove-section="${s.id}" style="padding:4px 8px;">Remove section</button>
+          ${opts.fixedSections ? '' : `<button class="btn btn-ghost btn-danger" data-remove-section="${s.id}" style="padding:4px 8px;">Remove section</button>`}
         </div>
       </div>
       ${s.entries.length ? `
@@ -90,7 +90,7 @@ function renderCell(s, entry, f) {
   return `<input type="text" ${attrs} value="${escapeHtml(value)}" />`;
 }
 
-function wireEvents(sections, rerender) {
+export function wireEvents(sections, rerender) {
   const findSection = (id) => sections.find((s) => s.id === id);
 
   document.querySelectorAll('[data-add-row]').forEach((btn) => {

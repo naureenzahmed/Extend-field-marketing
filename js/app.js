@@ -1,8 +1,9 @@
 import { getData, commit } from './store.js';
-import { LEAD_FIELDS, CONFERENCE_FIELDS, EVENT_FIELDS } from './seed.js';
+import { LEAD_FIELDS, EVENT_FIELDS } from './seed.js';
 import { renderCover } from './pages/cover.js';
 import { renderDocumentation } from './pages/documentation.js';
 import { renderTableSectionsPage } from './pages/tableSections.js';
+import { renderExternalConferences } from './pages/externalConferences.js';
 
 const tablePage = (key, title, fields, rowLabel) => (c) => renderTableSectionsPage(c, key, { title, fields, rowLabel });
 
@@ -10,7 +11,7 @@ const PAGES = {
   home: { label: 'Home', render: (c) => renderCover(c, PAGES) },
   documentation: { label: 'Documentation', dataKey: 'docs', render: renderDocumentation },
   leadLists: { label: 'Lead Lists', dataKey: 'leadLists', render: tablePage('leadLists', 'Lead Lists', LEAD_FIELDS, 'Add lead') },
-  externalConferences: { label: 'External Conferences', dataKey: 'externalConferences', render: tablePage('externalConferences', 'External Conferences', CONFERENCE_FIELDS, 'Add conference') },
+  externalConferences: { label: 'External Conferences', dataKey: 'externalConferences', render: renderExternalConferences },
   eventsNyc: { label: 'Events NYC', dataKey: 'eventsNyc', render: tablePage('eventsNyc', 'Events NYC', EVENT_FIELDS, 'Add event') },
   eventsSf: { label: 'Events SF', dataKey: 'eventsSf', render: tablePage('eventsSf', 'Events SF', EVENT_FIELDS, 'Add event') },
 };

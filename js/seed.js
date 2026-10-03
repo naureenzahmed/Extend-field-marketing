@@ -10,17 +10,61 @@ export const LEAD_FIELDS = [
   { key: 'notes', label: 'Notes' },
 ];
 
-export const CONFERENCE_FIELDS = [
-  { key: 'conference', label: 'Conference' },
-  { key: 'startDate', label: 'Start Date', type: 'date' },
-  { key: 'endDate', label: 'End Date', type: 'date' },
-  { key: 'location', label: 'Location' },
-  { key: 'website', label: 'Website' },
-  { key: 'participation', label: 'Participation', type: 'select', options: ['', 'Attending', 'Sponsoring', 'Booth', 'Speaking'] },
-  { key: 'cost', label: 'Cost' },
-  { key: 'owner', label: 'Owner' },
-  { key: 'notes', label: 'Notes' },
+const STATUS_OPTIONS = ['', 'Not Started', 'In Progress', 'Done'];
+
+const CONFERENCE_STAGES = [
+  {
+    key: 'pre', title: 'Pre-Conference Prep',
+    fields: [
+      { key: 'item', label: 'Item' },
+      { key: 'details', label: 'Details' },
+      { key: 'owner', label: 'Owner' },
+      { key: 'dueDate', label: 'Due Date', type: 'date' },
+      { key: 'status', label: 'Status', type: 'select', options: STATUS_OPTIONS },
+    ],
+    items: ['Dates', 'Location', 'Goals', 'Target Accounts', 'Meetings Pre-Booked', 'Materials Needed'],
+  },
+  {
+    key: 'logistics', title: 'Conference Logistics',
+    fields: [
+      { key: 'item', label: 'Item' },
+      { key: 'details', label: 'Details' },
+      { key: 'owner', label: 'Owner' },
+      { key: 'cost', label: 'Cost' },
+      { key: 'status', label: 'Status', type: 'select', options: STATUS_OPTIONS },
+    ],
+    items: ['Extend Team Attending', 'Tickets', 'Travel', 'Hotel', 'Booth / Space', 'Shipping & Swag'],
+  },
+  {
+    key: 'post', title: 'Post-Conference',
+    fields: [
+      { key: 'item', label: 'Item' },
+      { key: 'details', label: 'Details' },
+      { key: 'owner', label: 'Owner' },
+      { key: 'dueDate', label: 'Due Date', type: 'date' },
+      { key: 'status', label: 'Status', type: 'select', options: STATUS_OPTIONS },
+    ],
+    items: ['Leads Collected', 'Meetings Held', 'Follow-Up Sent', 'Pipeline Generated', 'Total Cost', 'Takeaways', 'Attend Again?'],
+  },
 ];
+
+/* A conference group: its title plus one table per stage, pre-filled with the standard items. */
+export function newConference(id, title) {
+  return {
+    id, title,
+    sections: CONFERENCE_STAGES.map((stage) => ({
+      id: `${id}-${stage.key}`,
+      title: stage.title,
+      fields: stage.fields,
+      entries: stage.items.map((item, i) => {
+        const row = { id: `${id}-${stage.key}-${i + 1}` };
+        stage.fields.forEach((f) => { row[f.key] = ''; });
+        row.item = item;
+        return row;
+      }),
+    })),
+  };
+}
 
 export const EVENT_FIELDS = [
   { key: 'event', label: 'Event' },
@@ -68,10 +112,10 @@ export function seedData() {
   const year = new Date().getFullYear();
   return {
     companyGoal: { title: 'EoY target', current: 0, target: 100, unit: '%', targetDate: `${year}-12-31` },
-    eventsSchema: 2,
+    schemaVersions: { events: 2, conferences: 3 },
     docs: seedDocs(),
     leadLists: sections('leads', ['Conference Attendee Lists', 'Event RSVPs', 'Target Accounts'], LEAD_FIELDS),
-    externalConferences: sections('conf', ['Upcoming', 'Under Consideration', 'Past'], CONFERENCE_FIELDS),
+    externalConferences: [newConference('conf-1', 'Conference Name')],
     eventsNyc: sections('nyc', ['External Events', 'Internal Events'], EVENT_FIELDS),
     eventsSf: sections('sf', ['External Events', 'Internal Events'], EVENT_FIELDS),
     pageNotes: {
