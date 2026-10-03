@@ -7,7 +7,7 @@ import { renderExternalConferences } from './pages/externalConferences.js';
 import { renderRoadmap } from './pages/roadmap.js';
 import { renderTrackerPage } from './pages/trackerShared.js';
 
-const tablePage = (key, title, fields, rowLabel) => (c) => renderTableSectionsPage(c, key, { title, fields, rowLabel });
+const tablePage = (key, title, fields, rowLabel, extra = {}) => (c) => renderTableSectionsPage(c, key, { title, fields, rowLabel, ...extra });
 
 const PAGES = {
   home: { label: 'Home', render: (c) => renderCover(c, PAGES) },
@@ -15,8 +15,8 @@ const PAGES = {
   leadLists: { label: 'Lead Lists', dataKey: 'leadLists', render: tablePage('leadLists', 'Lead Lists', LEAD_FIELDS, 'Add lead') },
   recruitmentFunnel: { label: 'Recruitment Funnel', dataKey: 'recruitmentFunnel', render: (c) => renderTrackerPage(c, getData(), 'recruitmentFunnel', { title: 'Recruitment Funnel' }) },
   externalConferences: { label: 'External Conferences', dataKey: 'externalConferences', render: renderExternalConferences },
-  eventsNyc: { label: 'Events NYC', dataKey: 'eventsNyc', render: tablePage('eventsNyc', 'Events NYC', EVENT_FIELDS, 'Add event') },
-  eventsSf: { label: 'Events SF', dataKey: 'eventsSf', render: tablePage('eventsSf', 'Events SF', EVENT_FIELDS, 'Add event') },
+  eventsNyc: { label: 'Events NYC', dataKey: 'eventsNyc', render: tablePage('eventsNyc', 'Events NYC', EVENT_FIELDS, 'Add event', { showEmptyTable: true }) },
+  eventsSf: { label: 'Events SF', dataKey: 'eventsSf', render: tablePage('eventsSf', 'Events SF', EVENT_FIELDS, 'Add event', { showEmptyTable: true }) },
   // Not in the nav: opened by clicking the target in the header.
   roadmap: { label: 'Roadmap', hidden: true, render: renderRoadmap },
 };

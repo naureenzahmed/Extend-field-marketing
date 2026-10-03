@@ -17,7 +17,7 @@ export const LEAD_FIELDS = [
   { key: 'estimatedQuantity', label: 'Estimated Quantity' },
   { key: 'estimatedRevenue', label: 'Estimated Revenue' },
   { key: 'note', label: 'Note' },
-]
+];
 
 const STATUS_OPTIONS = ['', 'Not Started', 'In Progress', 'Done'];
 
@@ -68,12 +68,14 @@ export function newConference(id, title) {
 }
 
 export const EVENT_FIELDS = [
-  { key: 'event', label: 'Event' },
-  { key: 'attendees', label: 'Number of Attendees' },
-  { key: 'icpOverlap', label: 'ICP Overlap with Extend' },
-  { key: 'status', label: 'Status', type: 'select', options: ['', 'Considering', 'Planned', 'Confirmed', 'Completed', 'Cancelled'] },
-  { key: 'teamAttending', label: 'Extend Team Attending' },
-]
+  { key: 'eventName', label: 'Event Name' },
+  { key: 'date', label: 'Date', type: 'date' },
+  { key: 'lumaLink', label: 'Link to Luma' },
+  { key: 'expectedAttendees', label: 'Number of Attendees Expected' },
+  { key: 'currentAttendees', label: 'Current Number of Attendees' },
+  { key: 'targetAudience', label: 'Target Audience' },
+  { key: 'checklistLink', label: 'Event Checklist Link' },
+];
 
 function sections(prefix, titles, fields) {
   return titles.map((title) => ({
@@ -353,7 +355,7 @@ export function seedData() {
   const year = new Date().getFullYear();
   return {
     companyGoal: { title: 'EoY target', current: 0, target: 100, unit: '%', targetDate: `${year}-12-31` },
-    schemaVersions: { events: 2, conferences: 4, leads: 2 },
+    schemaVersions: { events: 3, conferences: 4, leads: 2 },
     teams: TEAMS,
     people: PEOPLE,
     initiatives: INITIATIVES,
