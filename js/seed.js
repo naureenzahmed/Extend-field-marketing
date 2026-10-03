@@ -1,16 +1,23 @@
 import { addDays, todayISO, uid } from './utils.js';
 
+// Same columns as the ElevenLabs Inbound Leads table, with "User Name" as "Lead Name".
+const YES_NO_OPTIONS = ['', 'Yes', 'No'];
+
 export const LEAD_FIELDS = [
-  { key: 'name', label: 'Name' },
   { key: 'company', label: 'Company' },
+  { key: 'leadName', label: 'Lead Name' },
+  { key: 'source', label: 'Source', type: 'select', options: ['', 'Email', 'LinkedIn Ads', 'Google Ads', 'SEO/AEO', 'Reddit', 'Newsletter', 'Referral', 'Website', 'Other'] },
   { key: 'title', label: 'Title' },
-  { key: 'email', label: 'Email' },
-  { key: 'linkedin', label: 'LinkedIn' },
-  { key: 'source', label: 'Source' },
-  { key: 'status', label: 'Status', type: 'select', options: ['', 'New', 'Contacted', 'Meeting Booked', 'Opportunity', 'Not a Fit'] },
-  { key: 'owner', label: 'Owner' },
-  { key: 'notes', label: 'Notes' },
-];
+  { key: 'stage', label: 'Stage', type: 'select', options: ['', 'New', 'Contacted', 'Demo Booked', 'Demo Completed', 'Negotiation', 'Won', 'Lost'] },
+  { key: 'positiveAnswer', label: 'Positive Answer', type: 'select', options: YES_NO_OPTIONS },
+  { key: 'demoBookedDate', label: 'Demo Booked Date', type: 'date' },
+  { key: 'demoHappenedDate', label: 'Demo Happened Date', type: 'date' },
+  { key: 'lostLead', label: 'Lost Lead', type: 'select', options: YES_NO_OPTIONS },
+  { key: 'meetingWithAeDate', label: 'Meeting with AE date', type: 'date' },
+  { key: 'estimatedQuantity', label: 'Estimated Quantity' },
+  { key: 'estimatedRevenue', label: 'Estimated Revenue' },
+  { key: 'note', label: 'Note' },
+]
 
 const STATUS_OPTIONS = ['', 'Not Started', 'In Progress', 'Done'];
 
@@ -354,7 +361,7 @@ export function seedData() {
   const year = new Date().getFullYear();
   return {
     companyGoal: { title: 'EoY target', current: 0, target: 100, unit: '%', targetDate: `${year}-12-31` },
-    schemaVersions: { events: 2, conferences: 3 },
+    schemaVersions: { events: 2, conferences: 3, leads: 2 },
     teams: TEAMS,
     people: PEOPLE,
     initiatives: INITIATIVES,

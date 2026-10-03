@@ -5,6 +5,7 @@ const STORAGE_KEY = 'extendFieldMarketingData.v1';
 const SCHEMA_KEYS = {
   events: ['eventsNyc', 'eventsSf'],
   conferences: ['externalConferences'],
+  leads: ['leadLists'],
 };
 
 let data = load();
