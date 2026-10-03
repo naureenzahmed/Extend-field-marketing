@@ -108,6 +108,8 @@ function seedDocs() {
     docList('docs-brand', 'Brand & Messaging', ['Brand Guidelines', 'Messaging Document', 'Pitch Deck', 'One Pager']),
     docList('docs-playbooks', 'Event Playbooks', ['Event Planning Checklist', 'Booth Setup Guide', 'Post-Event Follow-Up Sequence', 'Swag & Materials Inventory']),
     docList('docs-templates', 'Templates', ['Event Invite Email', 'Event Follow-Up Email', 'Event Landing Page']),
+    docList('docs-attendee-lists', 'Attendee Lists', ['Event 1', 'Event 2', 'Event 3']),
+    docList('docs-event-checklists', 'Event Checklists', ['Event 1', 'Event 2', 'Event 3']),
   ];
 }
 
@@ -298,6 +300,7 @@ export function seedData() {
     weeks: seedWeeks(),
     recruitmentFunnel: seedRecruitmentFunnel(),
     docs: seedDocs(),
+    docsVersion: 2,
     leadLists: sections('leads', ['Conference Attendee Lists', 'Event RSVPs', 'Target Accounts'], LEAD_FIELDS),
     externalConferences: [newConference('conf-1', 'Conference Name')],
     eventsNyc: sections('nyc', ['External Events', 'Internal Events'], EVENT_FIELDS),

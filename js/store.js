@@ -28,6 +28,14 @@ function load() {
       }
       if (changed) stored.schemaVersions = fresh.schemaVersions;
       delete stored.eventsSchema;
+      // Add the event Documentation sections once to data saved before they existed, keeping existing sections.
+      if (!stored.docsVersion) {
+        for (const section of fresh.docs) {
+          if (!stored.docs.some((s) => s.id === section.id)) stored.docs.push(section);
+        }
+        stored.docsVersion = fresh.docsVersion;
+        changed = true;
+      }
       // Backfill any keys added to the seed after this data was first saved.
       for (const key of Object.keys(fresh)) {
         if (!(key in stored)) { stored[key] = fresh[key]; changed = true; }
