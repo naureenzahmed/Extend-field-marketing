@@ -72,6 +72,21 @@ function load() {
         stored.eventsFunnelVersion = fresh.eventsFunnelVersion;
         changed = true;
       }
+      // eventsImportVersion 1: Date becomes a text column, and External Events gets the events imported
+      // from the SF/NYC spreadsheet (skipping any already listed by name).
+      if ((stored.eventsImportVersion || 0) < fresh.eventsImportVersion) {
+        for (const key of ['eventsNyc', 'eventsSf']) {
+          const freshSections = fresh[key];
+          stored[key].forEach((section) => { section.fields = freshSections[0].fields; });
+          const external = stored[key].find((s) => s.id === freshSections[0].id);
+          if (!external) continue;
+          for (const event of freshSections[0].entries) {
+            if (!external.entries.some((e) => e.eventName === event.eventName)) external.entries.push(event);
+          }
+        }
+        stored.eventsImportVersion = fresh.eventsImportVersion;
+        changed = true;
+      }
       // Backfill any keys added to the seed after this data was first saved.
       for (const key of Object.keys(fresh)) {
         if (!(key in stored)) { stored[key] = fresh[key]; changed = true; }

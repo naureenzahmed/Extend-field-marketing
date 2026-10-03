@@ -88,14 +88,15 @@ export function renderSection(s, opts) {
 
 function renderCell(s, entry, f) {
   const value = entry[f.key] || '';
-  const attrs = `class="cell-input" data-row-id="${entry.id}" data-section-id="${s.id}" data-field="${f.key}"`;
+  const width = f.width ? ` style="min-width:${f.width}px;"` : '';
+  const attrs = `class="cell-input" data-row-id="${entry.id}" data-section-id="${s.id}" data-field="${f.key}"${width}`;
   if (f.type === 'select') {
     return `<select ${attrs}>
       ${f.options.map((o) => `<option value="${escapeHtml(o)}" ${o === value ? 'selected' : ''}>${o ? escapeHtml(o) : '—'}</option>`).join('')}
     </select>`;
   }
   if (f.type === 'date') return `<input type="date" ${attrs} value="${escapeHtml(value)}" />`;
-  return `<input type="text" ${attrs} value="${escapeHtml(value)}" />`;
+  return `<input type="text" ${attrs} value="${escapeHtml(value)}" title="${escapeHtml(value)}" />`;
 }
 
 export function wireEvents(root, sections, rerender) {

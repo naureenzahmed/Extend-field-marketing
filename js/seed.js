@@ -1,4 +1,5 @@
 import { addDays, todayISO, uid } from './utils.js';
+import { NYC_EXTERNAL_EVENTS, SF_EXTERNAL_EVENTS } from './eventImports.js';
 
 // Same columns as the ElevenLabs Inbound Leads table, with "User Name" as "Lead Name".
 const YES_NO_OPTIONS = ['', 'Yes', 'No'];
@@ -76,12 +77,13 @@ export const CANDIDATE_FIELDS = [
 ];
 
 export const EVENT_FIELDS = [
-  { key: 'eventName', label: 'Event Name' },
-  { key: 'date', label: 'Date', type: 'date' },
+  { key: 'eventName', label: 'Event Name', width: 260 },
+  // Text, not a date picker: imported dates include ranges like "Oct 13–15".
+  { key: 'date', label: 'Date', width: 200 },
   { key: 'lumaLink', label: 'Link to Luma' },
   { key: 'expectedAttendees', label: 'Number of Attendees Expected' },
   { key: 'currentAttendees', label: 'Current Number of Attendees' },
-  { key: 'targetAudience', label: 'Target Audience' },
+  { key: 'targetAudience', label: 'Target Audience', width: 420 },
   { key: 'checklistLink', label: 'Event Checklist Link' },
 ];
 
@@ -92,6 +94,12 @@ function sections(prefix, titles, fields) {
     fields,
     entries: [],
   }));
+}
+
+/* Fills an events page's External Events section with the imported events. */
+function withExternalEvents(pageSections, events) {
+  pageSections[0].entries = events.map((e) => ({ ...e }));
+  return pageSections;
 }
 
 function docList(id, title, titles) {
@@ -334,11 +342,12 @@ export function seedData() {
     docsVersion: 4,
     leadLists: sections('leads', ['Conference Attendee Lists', 'Event RSVPs', 'Target Accounts'], LEAD_FIELDS),
     externalConferences: [newConference('conf-1', 'Conference Name')],
-    eventsNyc: sections('nyc', ['External Events', 'Internal Events'], EVENT_FIELDS),
+    eventsImportVersion: 1,
+    eventsNyc: withExternalEvents(sections('nyc', ['External Events', 'Internal Events'], EVENT_FIELDS), NYC_EXTERNAL_EVENTS),
     eventsFunnelVersion: 2,
     eventsNycFunnel: seedEventsFunnel('nyc'),
     eventsSfFunnel: seedEventsFunnel('sf'),
-    eventsSf: sections('sf', ['External Events', 'Internal Events'], EVENT_FIELDS),
+    eventsSf: withExternalEvents(sections('sf', ['External Events', 'Internal Events'], EVENT_FIELDS), SF_EXTERNAL_EVENTS),
     pageNotes: {
       documentation: '',
       leadLists: '',
