@@ -67,6 +67,14 @@ export function newConference(id, title) {
   };
 }
 
+export const CANDIDATE_FIELDS = [
+  { key: 'name', label: 'Name' },
+  { key: 'idealRole', label: 'Ideal Role' },
+  { key: 'currentCompany', label: 'Current Company' },
+  { key: 'linkedin', label: 'Link to LinkedIn' },
+  { key: 'interactions', label: 'Interactions with Extend' },
+];
+
 export const EVENT_FIELDS = [
   { key: 'eventName', label: 'Event Name' },
   { key: 'date', label: 'Date', type: 'date' },
@@ -171,10 +179,10 @@ function seedEventsFunnel(prefix) {
       id: `${prefix}-attendance`,
       title: 'Event Attendance',
       entities: [
-        { name: 'Socratica Symposium', links: [] },
-        { name: 'GenAI Genesis', links: [] },
-        { name: 'Hack the North', links: [] },
-        { name: 'MILA ALL-IN', links: [] },
+        { name: 'Event 1', links: [] },
+        { name: 'Event 2', links: [] },
+        { name: 'Event 3', links: [] },
+        { name: 'Event 4', links: [] },
       ],
       metrics: [
         { id: 'm1', label: 'Leads (#)', target: 100, values: {} },
@@ -321,11 +329,13 @@ export function seedData() {
     slackWebhookUrl: '',
     weeks: seedWeeks(),
     recruitmentFunnel: seedRecruitmentFunnel(),
+    recruitmentCandidates: sections('rec', ['Candidates'], CANDIDATE_FIELDS),
     docs: seedDocs(),
     docsVersion: 4,
     leadLists: sections('leads', ['Conference Attendee Lists', 'Event RSVPs', 'Target Accounts'], LEAD_FIELDS),
     externalConferences: [newConference('conf-1', 'Conference Name')],
     eventsNyc: sections('nyc', ['External Events', 'Internal Events'], EVENT_FIELDS),
+    eventsFunnelVersion: 2,
     eventsNycFunnel: seedEventsFunnel('nyc'),
     eventsSfFunnel: seedEventsFunnel('sf'),
     eventsSf: sections('sf', ['External Events', 'Internal Events'], EVENT_FIELDS),

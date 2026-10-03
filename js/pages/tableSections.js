@@ -4,14 +4,15 @@ import { notesBoxHtml } from '../notesBox.js';
 import { renderTrackerSections } from './trackerShared.js';
 
 /* A page made of titled sections, each an editable table with its own field schema.
-   opts.trackerKey adds weekly-metric tracker sections (from that data key) below the tables. */
+   opts.trackerKey adds weekly-metric tracker sections (from that data key) below the tables;
+   opts.notesKey reads page notes from a key other than the data key. */
 export function renderTableSectionsPage(container, key, opts) {
   const data = getData();
   const sections = data[key];
   const rerender = () => renderTableSectionsPage(container, key, opts);
 
   container.innerHTML = `
-    ${notesBoxHtml(key)}
+    ${notesBoxHtml(opts.notesKey || key)}
     <div class="toolbar">
       <div class="page-title" style="margin:0;">${escapeHtml(opts.title)}</div>
       <button class="btn btn-primary" id="add-section-btn">+ Section</button>

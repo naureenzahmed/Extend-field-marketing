@@ -63,6 +63,15 @@ function load() {
         stored.docsVersion = fresh.docsVersion;
         changed = true;
       }
+      // eventsFunnelVersion 2: Event Attendance lists Event 1-4; keep the weekly numbers already entered.
+      if ((stored.eventsFunnelVersion || 1) < fresh.eventsFunnelVersion) {
+        for (const key of ['eventsNycFunnel', 'eventsSfFunnel']) {
+          const section = stored[key]?.find((s) => s.id.endsWith('-attendance'));
+          if (section) section.entities = fresh[key].find((s) => s.id === section.id).entities;
+        }
+        stored.eventsFunnelVersion = fresh.eventsFunnelVersion;
+        changed = true;
+      }
       // Backfill any keys added to the seed after this data was first saved.
       for (const key of Object.keys(fresh)) {
         if (!(key in stored)) { stored[key] = fresh[key]; changed = true; }
