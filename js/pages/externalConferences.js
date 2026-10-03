@@ -4,6 +4,12 @@ import { notesBoxHtml } from '../notesBox.js';
 import { newConference } from '../seed.js';
 import { renderSection, wireEvents } from './tableSections.js';
 
+const SUMMARY_FIELDS = [
+  { key: 'eventSummary', label: 'Event Summary', placeholder: 'What the conference is, who attends, and why it matters.' },
+  { key: 'participationSummary', label: 'Extend Participation Summary', placeholder: 'How Extend is taking part: booth, talk, sponsorship, team attending.' },
+  { key: 'targetGoal', label: 'Extend Target Goal', placeholder: 'What Extend wants to get out of it, e.g. meetings booked, leads, pipeline.' },
+];
+
 /* Each conference is a titled group holding its Pre-Conference, Logistics and Post-Conference tables. */
 export function renderExternalConferences(container) {
   const conferences = getData().externalConferences;
@@ -66,6 +72,16 @@ export function renderExternalConferences(container) {
     });
   });
 
+  document.querySelectorAll('[data-conf-summary]').forEach((textarea) => {
+    textarea.addEventListener('input', () => {
+      const [confId, key] = textarea.dataset.confSummary.split('|');
+      const conf = conferences.find((c) => c.id === confId);
+      conf.summary = conf.summary || {};
+      conf.summary[key] = textarea.value;
+      commit();
+    });
+  });
+
   wireEvents(conferences.flatMap((c) => c.sections), rerender);
 }
 
@@ -79,7 +95,15 @@ function renderConference(conf) {
           <button class="btn btn-ghost btn-danger" data-remove-conf="${conf.id}" style="padding:4px 8px;">Remove conference</button>
         </div>
       </div>
-      <div class="stack-16">
+      <div class="card conference-summary">
+        ${SUMMARY_FIELDS.map((f) => `
+          <div class="conference-summary-field">
+            <div class="section-label">${escapeHtml(f.label)}</div>
+            <textarea class="notes-box" data-conf-summary="${conf.id}|${f.key}" placeholder="${escapeHtml(f.placeholder)}">${escapeHtml(conf.summary?.[f.key] || '')}</textarea>
+          </div>
+        `).join('')}
+      </div>
+      <div class="stack-16" style="margin-top:16px;">
         ${conf.sections.map((s) => renderSection(s, { rowLabel: 'Add row', fixedSections: true, showEmptyTable: true })).join('')}
       </div>
     </div>

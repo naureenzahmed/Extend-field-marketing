@@ -556,3 +556,5 @@ a.header-goal { color: inherit; text-decoration: none; }
 .nav-tabs { overflow-x: auto; scrollbar-width: none; }
 .nav-tab { white-space: nowrap; }
 .header-goal { flex-shrink: 0; }
+.conference-summary-field + .conference-summary-field { margin-top: 14px; }
+.conference-summary .notes-box { min-height: 64px; margin-top: 6px; background: var(--bg-raised); }
