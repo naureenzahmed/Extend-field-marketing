@@ -31,7 +31,6 @@ const CONFERENCE_STAGES = [
       { key: 'dueDate', label: 'Due Date', type: 'date' },
       { key: 'status', label: 'Status', type: 'select', options: STATUS_OPTIONS },
     ],
-    items: ['Dates', 'Location', 'Goals', 'Target Accounts', 'Meetings Pre-Booked', 'Materials Needed'],
   },
   {
     key: 'logistics', title: 'Conference Logistics',
@@ -42,7 +41,6 @@ const CONFERENCE_STAGES = [
       { key: 'cost', label: 'Cost' },
       { key: 'status', label: 'Status', type: 'select', options: STATUS_OPTIONS },
     ],
-    items: ['Extend Team Attending', 'Tickets', 'Travel', 'Hotel', 'Booth / Space', 'Shipping & Swag'],
   },
   {
     key: 'post', title: 'Post-Conference',
@@ -53,11 +51,10 @@ const CONFERENCE_STAGES = [
       { key: 'dueDate', label: 'Due Date', type: 'date' },
       { key: 'status', label: 'Status', type: 'select', options: STATUS_OPTIONS },
     ],
-    items: ['Leads Collected', 'Meetings Held', 'Follow-Up Sent', 'Pipeline Generated', 'Total Cost', 'Takeaways', 'Attend Again?'],
   },
 ];
 
-/* A conference group: its title plus one table per stage, pre-filled with the standard items. */
+/* A conference group: its title plus one empty table per stage. */
 export function newConference(id, title) {
   return {
     id, title,
@@ -65,12 +62,7 @@ export function newConference(id, title) {
       id: `${id}-${stage.key}`,
       title: stage.title,
       fields: stage.fields,
-      entries: stage.items.map((item, i) => {
-        const row = { id: `${id}-${stage.key}-${i + 1}` };
-        stage.fields.forEach((f) => { row[f.key] = ''; });
-        row.item = item;
-        return row;
-      }),
+      entries: [],
     })),
   };
 }
@@ -361,7 +353,7 @@ export function seedData() {
   const year = new Date().getFullYear();
   return {
     companyGoal: { title: 'EoY target', current: 0, target: 100, unit: '%', targetDate: `${year}-12-31` },
-    schemaVersions: { events: 2, conferences: 3, leads: 2 },
+    schemaVersions: { events: 2, conferences: 4, leads: 2 },
     teams: TEAMS,
     people: PEOPLE,
     initiatives: INITIATIVES,

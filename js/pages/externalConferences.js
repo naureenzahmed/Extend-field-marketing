@@ -80,7 +80,7 @@ function renderConference(conf) {
         </div>
       </div>
       <div class="stack-16">
-        ${conf.sections.map((s) => renderSection(s, { rowLabel: 'Add item', fixedSections: true })).join('')}
+        ${conf.sections.map((s) => renderSection(s, { rowLabel: 'Add row', fixedSections: true, showEmptyTable: true })).join('')}
       </div>
     </div>
   `;

@@ -54,7 +54,7 @@ export function renderSection(s, opts) {
           ${opts.fixedSections ? '' : `<button class="btn btn-ghost btn-danger" data-remove-section="${s.id}" style="padding:4px 8px;">Remove section</button>`}
         </div>
       </div>
-      ${s.entries.length ? `
+      ${s.entries.length || opts.showEmptyTable ? `
         <div class="tracker-scroll">
           <table class="list-table doc-fields-table">
             <thead>
