@@ -169,31 +169,6 @@ function seedRecruitmentFunnel() {
       ],
     },
     {
-      id: 'rec-companies',
-      title: 'Companies to Track Employees',
-      note: 'Companies with a similar culture and ambition in the industry. There’s a lot of overlap and the right industry backgrounds. As these companies get significantly larger, employees lose ownership — Extend can offer all the benefits these companies provide, on top of responsibility and ownership.',
-      entities: [
-        { name: 'Sanctuary AI', links: [] },
-        { name: 'Waabi', links: [] },
-        { name: 'Stan', links: [] },
-        { name: 'Gumloop', links: [] },
-        { name: 'Float Financial', links: [] },
-        { name: 'Venn', links: [] },
-        { name: 'Botpress', links: [] },
-        { name: 'Planned', links: [] },
-        { name: 'Deck', links: [] },
-        { name: 'Rootly', links: [] },
-        { name: 'Shopify', links: [] },
-        { name: 'Turbopuffer', links: [] },
-        { name: 'Ramp', links: [] },
-      ],
-      metrics: [
-        { id: 'm1', label: 'Leads (#)', target: 130, values: {} },
-        { id: 'm2', label: 'Interview Booked (%)', target: '15%', values: {} },
-        { id: 'm3', label: 'Interview Booked (#)', target: 20, values: {} },
-      ],
-    },
-    {
       id: 'rec-total',
       title: 'Total',
       metrics: [
@@ -312,7 +287,7 @@ export function seedData() {
   const year = new Date().getFullYear();
   return {
     companyGoal: { title: 'EoY target', current: 0, target: 100, unit: '%', targetDate: `${year}-12-31` },
-    schemaVersions: { events: 3, conferences: 4, leads: 2, recruitment: 2 },
+    schemaVersions: { events: 3, conferences: 4, leads: 2, recruitment: 3 },
     teams: TEAMS,
     people: PEOPLE,
     initiatives: INITIATIVES,
