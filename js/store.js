@@ -6,6 +6,7 @@ const SCHEMA_KEYS = {
   events: ['eventsNyc', 'eventsSf'],
   conferences: ['externalConferences'],
   leads: ['leadLists'],
+  recruitment: ['recruitmentFunnel'],
 };
 
 let data = load();

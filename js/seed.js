@@ -113,13 +113,6 @@ function seedDocs() {
 
 /* ---------- Recruitment Funnel (copied from the ElevenLabs Recruitment page) ---------- */
 
-function mkClubs(names) {
-  return names.map((name) => ({
-    id: uid('club'), name, goal: '', theyGet: '', weGet: '',
-    progressCurrent: 0, progressTarget: 100, eventDate: '', partnershipDate: '',
-  }));
-}
-
 function seedWeeks() {
   const today = new Date();
   const day = today.getDay();
@@ -141,42 +134,6 @@ function seedWeeks() {
 
 function seedRecruitmentFunnel() {
   return [
-    {
-      id: 'rec-schools',
-      title: 'School Partnerships',
-      entities: [
-        { name: 'MIT', links: mkClubs(['MIT Driverless']) },
-        { name: 'Waterloo', links: mkClubs(['Coop Programs', 'Socratica', 'Design Teams', 'WATonomous', 'WAT.ai']) },
-        { name: 'UBC', links: mkClubs(['UBC Thunderbots']) },
-        { name: 'UofT', links: mkClubs(['UTMIST']) },
-        { name: 'McGill', links: mkClubs(['McGill Ventures', 'McHacks', 'NOBE McGill', 'JEG Consulting', 'Nord Consulting', 'MES']) },
-        { name: 'McMaster', links: mkClubs(['DeltaHacks', 'McMaster AI Society', 'McMaster Robotics']) },
-        { name: 'TMU', links: mkClubs(['Hack the 6ix', 'TMU AI']) },
-        { name: 'Simon Fraser', links: mkClubs(['SFU Surge', 'SFU AI Club']) },
-        { name: 'Western', links: mkClubs(['Hack Western', 'Ivey FinTech Club']) },
-        { name: 'Queen’s', links: mkClubs([]) },
-        { name: 'Concordia', links: mkClubs(['ConUHacks', 'Space Concordia', 'District 3']) },
-      ],
-      metrics: [
-        { id: 'm1', label: 'Leads (#)', target: 10, values: {} },
-        { id: 'm2', label: 'Interview Booked (%)', target: '1%', values: {} },
-        { id: 'm3', label: 'Interview Booked (#)', target: 5, values: {} },
-      ],
-    },
-    {
-      id: 'rec-sponsorships',
-      title: 'Event Sponsorships',
-      metrics: [
-        { id: 'm1', label: 'Budget', target: '$1,000 / in-kind / intros', values: {} },
-        { id: 'm2', label: 'Our interest', target: 'Videos, talent', values: {} },
-        { id: 'm3', label: 'Type of talent', target: 'Eng / Ops / Sales', values: {} },
-        { id: 'm4', label: 'Number of events', note: 'Look at hiring from that same level of talent.', target: null, values: {} },
-        { id: 'm5', label: 'Demographic reached', target: null, values: {} },
-        { id: 'm6', label: 'Leads (#)', target: '40 per event', values: {} },
-        { id: 'm7', label: 'Interview Booked (%)', target: '75%', values: {} },
-        { id: 'm8', label: 'Interview Booked (#)', target: '15 per event', values: {} },
-      ],
-    },
     {
       id: 'rec-attendance',
       title: 'Event Attendance',
@@ -355,7 +312,7 @@ export function seedData() {
   const year = new Date().getFullYear();
   return {
     companyGoal: { title: 'EoY target', current: 0, target: 100, unit: '%', targetDate: `${year}-12-31` },
-    schemaVersions: { events: 3, conferences: 4, leads: 2 },
+    schemaVersions: { events: 3, conferences: 4, leads: 2, recruitment: 2 },
     teams: TEAMS,
     people: PEOPLE,
     initiatives: INITIATIVES,
