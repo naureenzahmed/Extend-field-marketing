@@ -12,6 +12,13 @@ function load() {
       const fresh = seedData();
       // Backfill any keys added to the seed after this data was first saved.
       let changed = false;
+      // Events pages moved to External / Internal sections with new columns.
+      if (stored.eventsSchema !== fresh.eventsSchema) {
+        stored.eventsNyc = fresh.eventsNyc;
+        stored.eventsSf = fresh.eventsSf;
+        stored.eventsSchema = fresh.eventsSchema;
+        changed = true;
+      }
       for (const key of Object.keys(fresh)) {
         if (!(key in stored)) { stored[key] = fresh[key]; changed = true; }
       }

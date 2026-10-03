@@ -24,17 +24,11 @@ export const CONFERENCE_FIELDS = [
 
 export const EVENT_FIELDS = [
   { key: 'event', label: 'Event' },
-  { key: 'date', label: 'Date', type: 'date' },
-  { key: 'venue', label: 'Venue' },
-  { key: 'format', label: 'Format', type: 'select', options: ['', 'Dinner', 'Happy Hour', 'Breakfast', 'Panel', 'Workshop', 'Meetup', 'Other'] },
-  { key: 'coHost', label: 'Co-host' },
-  { key: 'targetAttendees', label: 'Target Attendees' },
-  { key: 'rsvps', label: 'RSVPs' },
-  { key: 'attended', label: 'Attended' },
-  { key: 'budget', label: 'Budget' },
-  { key: 'owner', label: 'Owner' },
-  { key: 'notes', label: 'Notes' },
-];
+  { key: 'attendees', label: 'Number of Attendees' },
+  { key: 'icpOverlap', label: 'ICP Overlap with Extend' },
+  { key: 'status', label: 'Status', type: 'select', options: ['', 'Considering', 'Planned', 'Confirmed', 'Completed', 'Cancelled'] },
+  { key: 'teamAttending', label: 'Extend Team Attending' },
+]
 
 function sections(prefix, titles, fields) {
   return titles.map((title) => ({
@@ -74,11 +68,12 @@ export function seedData() {
   const year = new Date().getFullYear();
   return {
     companyGoal: { title: 'EoY target', current: 0, target: 100, unit: '%', targetDate: `${year}-12-31` },
+    eventsSchema: 2,
     docs: seedDocs(),
     leadLists: sections('leads', ['Conference Attendee Lists', 'Event RSVPs', 'Target Accounts'], LEAD_FIELDS),
     externalConferences: sections('conf', ['Upcoming', 'Under Consideration', 'Past'], CONFERENCE_FIELDS),
-    eventsNyc: sections('nyc', ['Upcoming Events', 'Past Events'], EVENT_FIELDS),
-    eventsSf: sections('sf', ['Upcoming Events', 'Past Events'], EVENT_FIELDS),
+    eventsNyc: sections('nyc', ['External Events', 'Internal Events'], EVENT_FIELDS),
+    eventsSf: sections('sf', ['External Events', 'Internal Events'], EVENT_FIELDS),
     pageNotes: {
       documentation: '',
       leadLists: '',
