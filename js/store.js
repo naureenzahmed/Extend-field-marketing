@@ -30,6 +30,9 @@ function load() {
       for (const key of Object.keys(fresh)) {
         if (!(key in stored)) { stored[key] = fresh[key]; changed = true; }
       }
+      for (const key of Object.keys(fresh.pageNotes)) {
+        if (!(key in stored.pageNotes)) { stored.pageNotes[key] = fresh.pageNotes[key]; changed = true; }
+      }
       if (changed) save(stored);
       return stored;
     }

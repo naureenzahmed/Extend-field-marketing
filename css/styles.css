@@ -550,3 +550,9 @@ a.doc-title:hover { text-decoration: underline; }
 a.header-goal { color: inherit; text-decoration: none; }
 .header-goal.active { background: var(--bg-raised); }
 .goal-banner .goal-icon img { width: 30px; height: 30px; mix-blend-mode: multiply; }
+
+/* Keep nav tabs on one line; scroll sideways when the header is narrow */
+.header-left { min-width: 0; }
+.nav-tabs { overflow-x: auto; scrollbar-width: none; }
+.nav-tab { white-space: nowrap; }
+.header-goal { flex-shrink: 0; }
