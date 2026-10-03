@@ -77,18 +77,26 @@ function load() {
         stored.eventsFunnelVersion = fresh.eventsFunnelVersion;
         changed = true;
       }
-      // eventsImportVersion 1: Date becomes a text column, and External Events gets the events imported
-      // from the SF/NYC spreadsheet (skipping any already listed by name).
-      if ((stored.eventsImportVersion || 0) < fresh.eventsImportVersion) {
-        for (const key of ['eventsNyc', 'eventsSf']) {
-          const freshSections = fresh[key];
-          stored[key].forEach((section) => { section.fields = freshSections[0].fields; });
-          const external = stored[key].find((s) => s.id === freshSections[0].id);
-          if (!external) continue;
-          for (const event of freshSections[0].entries) {
-            if (!external.entries.some((e) => e.eventName === event.eventName)) external.entries.push(event);
+      // Add imported events to saved data once, skipping any already listed by name.
+      //   eventsImportVersion 1: Date becomes a text column; External Events (NYC, SF) from the SF/NYC spreadsheet.
+      //   eventsImportVersion 2: SF Internal Events ideas.
+      const importVersion = stored.eventsImportVersion || 0;
+      if (importVersion < fresh.eventsImportVersion) {
+        const addMissing = (key, index) => {
+          const freshSection = fresh[key][index];
+          const section = stored[key].find((s) => s.id === freshSection.id);
+          if (!section) return;
+          for (const event of freshSection.entries) {
+            if (!section.entries.some((e) => e.eventName === event.eventName)) section.entries.push(event);
+          }
+        };
+        if (importVersion < 1) {
+          for (const key of ['eventsNyc', 'eventsSf']) {
+            stored[key].forEach((section) => { section.fields = fresh[key][0].fields; });
+            addMissing(key, 0);
           }
         }
+        if (importVersion < 2) addMissing('eventsSf', 1);
         stored.eventsImportVersion = fresh.eventsImportVersion;
         changed = true;
       }

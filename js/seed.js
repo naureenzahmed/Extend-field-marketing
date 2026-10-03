@@ -1,5 +1,5 @@
 import { addDays, todayISO, uid } from './utils.js';
-import { NYC_EXTERNAL_EVENTS, SF_EXTERNAL_EVENTS } from './eventImports.js';
+import { NYC_EXTERNAL_EVENTS, SF_EXTERNAL_EVENTS, SF_INTERNAL_EVENTS } from './eventImports.js';
 
 // Same columns as the ElevenLabs Inbound Leads table, with "User Name" as "Lead Name".
 const YES_NO_OPTIONS = ['', 'Yes', 'No'];
@@ -96,9 +96,10 @@ function sections(prefix, titles, fields) {
   }));
 }
 
-/* Fills an events page's External Events section with the imported events. */
-function withExternalEvents(pageSections, events) {
-  pageSections[0].entries = events.map((e) => ({ ...e }));
+/* Fills an events page's External and Internal Events sections. */
+function withEvents(pageSections, external, internal = []) {
+  pageSections[0].entries = external.map((e) => ({ ...e }));
+  pageSections[1].entries = internal.map((e) => ({ ...e }));
   return pageSections;
 }
 
@@ -340,12 +341,12 @@ export function seedData() {
     docsVersion: 4,
     leadLists: sections('leads', ['Conference Attendee Lists', 'Event RSVPs', 'Target Accounts'], LEAD_FIELDS),
     externalConferences: [newConference('conf-1', 'Conference Name')],
-    eventsImportVersion: 1,
-    eventsNyc: withExternalEvents(sections('nyc', ['External Events', 'Internal Events'], EVENT_FIELDS), NYC_EXTERNAL_EVENTS),
+    eventsImportVersion: 2,
+    eventsNyc: withEvents(sections('nyc', ['External Events', 'Internal Events'], EVENT_FIELDS), NYC_EXTERNAL_EVENTS),
     eventsFunnelVersion: 3,
     eventsNycFunnel: seedEventsFunnel('nyc'),
     eventsSfFunnel: seedEventsFunnel('sf'),
-    eventsSf: withExternalEvents(sections('sf', ['External Events', 'Internal Events'], EVENT_FIELDS), SF_EXTERNAL_EVENTS),
+    eventsSf: withEvents(sections('sf', ['External Events', 'Internal Events'], EVENT_FIELDS), SF_EXTERNAL_EVENTS, SF_INTERNAL_EVENTS),
     pageNotes: {
       documentation: '',
       leadLists: '',
