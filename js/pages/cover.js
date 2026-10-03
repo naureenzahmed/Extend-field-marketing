@@ -8,7 +8,7 @@ export function renderCover(container, pages) {
     .map(([key, p]) => ({
       key,
       label: p.label,
-      subsections: data[p.dataKey].map((s) => ({ id: s.id, label: s.title })),
+      subsections: [...data[p.dataKey], ...(p.extraDataKey ? data[p.extraDataKey] : [])].map((s) => ({ id: s.id, label: s.title })),
     }));
 
   container.innerHTML = `

@@ -110,6 +110,7 @@ function seedDocs() {
     docList('docs-templates', 'Templates', ['Event Invite Email', 'Event Follow-Up Email', 'Event Landing Page']),
     docList('docs-attendee-lists', 'Attendee Lists', ['Event 1', 'Event 2', 'Event 3']),
     docList('docs-event-checklists', 'Event Checklists', ['Event 1', 'Event 2', 'Event 3']),
+    docList('docs-inspiration', 'Inspiration', ['Long Journey Ventures', 'Gumloop', 'New York Startup Week', 'Verci']),
   ];
 }
 
@@ -137,7 +138,22 @@ function seedWeeks() {
 function seedRecruitmentFunnel() {
   return [
     {
-      id: 'rec-attendance',
+      id: 'rec-total',
+      title: 'Total',
+      metrics: [
+        { id: 'm1', label: 'Leads (#)', target: null, values: {} },
+        { id: 'm2', label: 'Interview Booked (%)', target: null, values: {} },
+        { id: 'm3', label: 'Interview Booked (#)', target: null, values: {} },
+      ],
+    },
+  ];
+}
+
+/* Event Attendance and Partnership Events, moved from the Recruitment Funnel; NYC and SF each get their own copy. */
+function seedEventsFunnel(prefix) {
+  return [
+    {
+      id: `${prefix}-attendance`,
       title: 'Event Attendance',
       entities: [
         { name: 'Socratica Symposium', links: [] },
@@ -152,31 +168,22 @@ function seedRecruitmentFunnel() {
       ],
     },
     {
-      id: 'rec-partnerships',
+      id: `${prefix}-partnerships`,
       title: 'Partnership Events',
       entities: [
-        { name: 'Mecka AI', note: 'Recruit same level of talent' },
-        { name: 'Rootly', note: '' },
-        { name: 'Turbopuffer', note: 'Strong technical talent, able to work under pressure' },
-        { name: 'Nationgraph', note: '' },
-        { name: 'Cambridge', note: 'New avenues of growth and sales skills' },
-        { name: 'Shopify', note: '' },
-        { name: 'Gumloop', note: '' },
-        { name: 'Sanctuary AI', note: '' },
+        { name: 'Corgi', links: [] },
+        { name: 'Verci', links: [] },
+        { name: 'General Intelligence Company of New York', links: [] },
+        { name: 'Anti Roch', links: [] },
+        { name: 'Ramp', links: [] },
+        { name: 'Clay', links: [] },
+        { name: 'Brex', links: [] },
+        { name: '222', links: [] },
       ],
       metrics: [
         { id: 'm1', label: 'Leads (#)', target: '40 per event', values: {} },
         { id: 'm2', label: 'Interview Booked (%)', target: '37.5%', values: {} },
         { id: 'm3', label: 'Interview Booked (#)', target: '15 per event', values: {} },
-      ],
-    },
-    {
-      id: 'rec-total',
-      title: 'Total',
-      metrics: [
-        { id: 'm1', label: 'Leads (#)', target: null, values: {} },
-        { id: 'm2', label: 'Interview Booked (%)', target: null, values: {} },
-        { id: 'm3', label: 'Interview Booked (#)', target: null, values: {} },
       ],
     },
   ];
@@ -289,7 +296,7 @@ export function seedData() {
   const year = new Date().getFullYear();
   return {
     companyGoal: { title: 'EoY target', current: 0, target: 100, unit: '%', targetDate: `${year}-12-31` },
-    schemaVersions: { events: 3, conferences: 4, leads: 2, recruitment: 3 },
+    schemaVersions: { events: 3, conferences: 4, leads: 2, recruitment: 4 },
     teams: TEAMS,
     people: PEOPLE,
     initiatives: INITIATIVES,
@@ -300,10 +307,12 @@ export function seedData() {
     weeks: seedWeeks(),
     recruitmentFunnel: seedRecruitmentFunnel(),
     docs: seedDocs(),
-    docsVersion: 2,
+    docsVersion: 3,
     leadLists: sections('leads', ['Conference Attendee Lists', 'Event RSVPs', 'Target Accounts'], LEAD_FIELDS),
     externalConferences: [newConference('conf-1', 'Conference Name')],
     eventsNyc: sections('nyc', ['External Events', 'Internal Events'], EVENT_FIELDS),
+    eventsNycFunnel: seedEventsFunnel('nyc'),
+    eventsSfFunnel: seedEventsFunnel('sf'),
     eventsSf: sections('sf', ['External Events', 'Internal Events'], EVENT_FIELDS),
     pageNotes: {
       documentation: '',

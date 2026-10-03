@@ -5,7 +5,6 @@ import { notesBoxHtml } from '../notesBox.js';
 
 export function renderTrackerPage(container, data, key, opts) {
   const sections = data[key];
-  const weeks = data.weeks;
 
   container.innerHTML = `
     ${notesBoxHtml(key)}
@@ -21,7 +20,8 @@ export function renderTrackerPage(container, data, key, opts) {
     <div id="tracker-sections" class="stack-16"></div>
   `;
 
-  document.getElementById('tracker-sections').innerHTML = sections.map((s) => renderSection(s, weeks)).join('');
+  const rerender = () => renderTrackerPage(container, data, key, opts);
+  renderTrackerSections(document.getElementById('tracker-sections'), data, sections, rerender);
 
   const sectionForm = document.getElementById('add-section-form');
   const sectionInput = document.getElementById('add-section-input');
@@ -39,12 +39,16 @@ export function renderTrackerPage(container, data, key, opts) {
     if (!title) return;
     sections.push({ id: uid('sec'), title, metrics: [] });
     commit();
-    renderTrackerPage(container, data, key, opts);
+    rerender();
   };
   document.getElementById('add-section-confirm').addEventListener('click', confirmAddSection);
   sectionInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') confirmAddSection(); });
+}
 
-  wireEvents(container, data, key, opts, sections);
+/* Renders weekly-metric tracker sections into root; all event wiring is scoped to root. */
+export function renderTrackerSections(root, data, sections, rerender) {
+  root.innerHTML = sections.map((s) => renderSection(s, data.weeks)).join('');
+  wireEvents(root, sections, rerender);
 }
 
 function renderSection(s, weeks) {
@@ -125,15 +129,15 @@ function renderMeetingsSummary(s) {
   return `<div class="tracker-summary">Meetings booked <b>${total}</b></div>`;
 }
 
-function wireEvents(container, data, key, opts, sections) {
-  document.querySelectorAll('[data-open-club]').forEach((btn) => {
+function wireEvents(root, sections, rerender) {
+  root.querySelectorAll('[data-open-club]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const [sectionId, entityIndex, linkId] = btn.dataset.openClub.split('|');
-      openClubSidebar(sections, sectionId, Number(entityIndex), linkId, () => renderTrackerPage(container, data, key, opts));
+      openClubSidebar(sections, sectionId, Number(entityIndex), linkId, rerender);
     });
   });
 
-  document.querySelectorAll('.tracker-input').forEach((input) => {
+  root.querySelectorAll('.tracker-input').forEach((input) => {
     input.addEventListener('input', () => {
       const [sectionId, metricId, weekKey] = input.dataset.metric.split('|');
       const section = sections.find((s) => s.id === sectionId);
@@ -145,7 +149,7 @@ function wireEvents(container, data, key, opts, sections) {
     });
   });
 
-  document.querySelectorAll('[data-add-metric]').forEach((btn) => {
+  root.querySelectorAll('[data-add-metric]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const form = document.getElementById(`add-metric-form-${btn.dataset.addMetric}`);
       const input = document.getElementById(`add-metric-input-${btn.dataset.addMetric}`);
@@ -154,7 +158,7 @@ function wireEvents(container, data, key, opts, sections) {
     });
   });
 
-  document.querySelectorAll('[data-cancel-add-metric]').forEach((btn) => {
+  root.querySelectorAll('[data-cancel-add-metric]').forEach((btn) => {
     btn.addEventListener('click', () => {
       document.getElementById(`add-metric-form-${btn.dataset.cancelAddMetric}`).style.display = 'none';
     });
@@ -168,33 +172,33 @@ function wireEvents(container, data, key, opts, sections) {
     section.metrics = section.metrics || [];
     section.metrics.push({ id: uid('m'), label, target: null, values: {} });
     commit();
-    renderTrackerPage(container, data, key, opts);
+    rerender();
   };
-  document.querySelectorAll('[data-confirm-add-metric]').forEach((btn) => {
+  root.querySelectorAll('[data-confirm-add-metric]').forEach((btn) => {
     btn.addEventListener('click', () => confirmAddMetric(btn.dataset.confirmAddMetric));
   });
-  document.querySelectorAll('[id^="add-metric-input-"]').forEach((input) => {
+  root.querySelectorAll('[id^="add-metric-input-"]').forEach((input) => {
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') confirmAddMetric(input.id.replace('add-metric-input-', ''));
     });
   });
 
-  document.querySelectorAll('[data-remove-metric]').forEach((btn) => {
+  root.querySelectorAll('[data-remove-metric]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const [sectionId, metricId] = btn.dataset.removeMetric.split('|');
       const section = sections.find((s) => s.id === sectionId);
       section.metrics = section.metrics.filter((m) => m.id !== metricId);
       commit();
-      renderTrackerPage(container, data, key, opts);
+      rerender();
     });
   });
 
-  document.querySelectorAll('[data-remove-section]').forEach((btn) => {
+  root.querySelectorAll('[data-remove-section]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const idx = sections.findIndex((s) => s.id === btn.dataset.removeSection);
       if (idx >= 0) sections.splice(idx, 1);
       commit();
-      renderTrackerPage(container, data, key, opts);
+      rerender();
     });
   });
 }

@@ -26,7 +26,7 @@ export function renderExternalConferences(container) {
       <button class="btn btn-primary" id="add-conf-confirm">Add</button>
       <button class="btn btn-ghost" id="add-conf-cancel">Cancel</button>
     </div>
-    <div class="stack-16">
+    <div class="stack-16" id="conference-groups">
       ${conferences.length ? conferences.map(renderConference).join('') : '<div class="empty-hint">No conferences yet.</div>'}
     </div>
   `;
@@ -82,7 +82,7 @@ export function renderExternalConferences(container) {
     });
   });
 
-  wireEvents(conferences.flatMap((c) => c.sections), rerender);
+  wireEvents(document.getElementById('conference-groups'), conferences.flatMap((c) => c.sections), rerender);
 }
 
 function renderConference(conf) {

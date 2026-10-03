@@ -15,8 +15,8 @@ const PAGES = {
   leadLists: { label: 'Lead Lists', dataKey: 'leadLists', render: tablePage('leadLists', 'Lead Lists', LEAD_FIELDS, 'Add lead') },
   recruitmentFunnel: { label: 'Recruitment Funnel', dataKey: 'recruitmentFunnel', render: (c) => renderTrackerPage(c, getData(), 'recruitmentFunnel', { title: 'Recruitment Funnel' }) },
   externalConferences: { label: 'External Conferences', dataKey: 'externalConferences', render: renderExternalConferences },
-  eventsNyc: { label: 'Events NYC', dataKey: 'eventsNyc', render: tablePage('eventsNyc', 'Events NYC', EVENT_FIELDS, 'Add event', { showEmptyTable: true }) },
-  eventsSf: { label: 'Events SF', dataKey: 'eventsSf', render: tablePage('eventsSf', 'Events SF', EVENT_FIELDS, 'Add event', { showEmptyTable: true }) },
+  eventsNyc: { label: 'Events NYC', dataKey: 'eventsNyc', extraDataKey: 'eventsNycFunnel', render: tablePage('eventsNyc', 'Events NYC', EVENT_FIELDS, 'Add event', { showEmptyTable: true, trackerKey: 'eventsNycFunnel' }) },
+  eventsSf: { label: 'Events SF', dataKey: 'eventsSf', extraDataKey: 'eventsSfFunnel', render: tablePage('eventsSf', 'Events SF', EVENT_FIELDS, 'Add event', { showEmptyTable: true, trackerKey: 'eventsSfFunnel' }) },
   // Not in the nav: opened by clicking the target in the header.
   roadmap: { label: 'Roadmap', hidden: true, render: renderRoadmap },
 };

@@ -9,6 +9,12 @@ const SCHEMA_KEYS = {
   recruitment: ['recruitmentFunnel'],
 };
 
+// Documentation section ids added in each docsVersion.
+const DOC_SECTIONS_ADDED = {
+  2: ['docs-attendee-lists', 'docs-event-checklists'],
+  3: ['docs-inspiration'],
+};
+
 let data = load();
 
 function load() {
@@ -28,10 +34,15 @@ function load() {
       }
       if (changed) stored.schemaVersions = fresh.schemaVersions;
       delete stored.eventsSchema;
-      // Add the event Documentation sections once to data saved before they existed, keeping existing sections.
-      if (!stored.docsVersion) {
-        for (const section of fresh.docs) {
-          if (!stored.docs.some((s) => s.id === section.id)) stored.docs.push(section);
+      // Add Documentation sections introduced after this data was saved, once per version,
+      // so a section the user deletes stays deleted.
+      const docsVersion = stored.docsVersion || 1;
+      if (docsVersion < fresh.docsVersion) {
+        for (const [version, ids] of Object.entries(DOC_SECTIONS_ADDED)) {
+          if (Number(version) <= docsVersion) continue;
+          for (const section of fresh.docs.filter((s) => ids.includes(s.id))) {
+            if (!stored.docs.some((s) => s.id === section.id)) stored.docs.push(section);
+          }
         }
         stored.docsVersion = fresh.docsVersion;
         changed = true;

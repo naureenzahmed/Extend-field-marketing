@@ -1,10 +1,13 @@
 import { getData, commit } from '../store.js';
 import { uid, escapeHtml } from '../utils.js';
 import { notesBoxHtml } from '../notesBox.js';
+import { renderTrackerSections } from './trackerShared.js';
 
-/* A page made of titled sections, each an editable table with its own field schema. */
+/* A page made of titled sections, each an editable table with its own field schema.
+   opts.trackerKey adds weekly-metric tracker sections (from that data key) below the tables. */
 export function renderTableSectionsPage(container, key, opts) {
-  const sections = getData()[key];
+  const data = getData();
+  const sections = data[key];
   const rerender = () => renderTableSectionsPage(container, key, opts);
 
   container.innerHTML = `
@@ -18,7 +21,8 @@ export function renderTableSectionsPage(container, key, opts) {
       <button class="btn btn-primary" id="add-section-confirm">Add</button>
       <button class="btn btn-ghost" id="add-section-cancel">Cancel</button>
     </div>
-    <div class="stack-16">${sections.map((s) => renderSection(s, opts)).join('')}</div>
+    <div class="stack-16" id="table-sections">${sections.map((s) => renderSection(s, opts)).join('')}</div>
+    ${opts.trackerKey ? '<div class="stack-16" id="page-tracker-sections" style="margin-top:16px;"></div>' : ''}
   `;
 
   const sectionForm = document.getElementById('add-section-form');
@@ -41,7 +45,10 @@ export function renderTableSectionsPage(container, key, opts) {
   document.getElementById('add-section-confirm').addEventListener('click', confirmAddSection);
   sectionInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') confirmAddSection(); });
 
-  wireEvents(sections, rerender);
+  wireEvents(document.getElementById('table-sections'), sections, rerender);
+  if (opts.trackerKey) {
+    renderTrackerSections(document.getElementById('page-tracker-sections'), data, data[opts.trackerKey], rerender);
+  }
 }
 
 export function renderSection(s, opts) {
@@ -90,10 +97,10 @@ function renderCell(s, entry, f) {
   return `<input type="text" ${attrs} value="${escapeHtml(value)}" />`;
 }
 
-export function wireEvents(sections, rerender) {
+export function wireEvents(root, sections, rerender) {
   const findSection = (id) => sections.find((s) => s.id === id);
 
-  document.querySelectorAll('[data-add-row]').forEach((btn) => {
+  root.querySelectorAll('[data-add-row]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const section = findSection(btn.dataset.addRow);
       const row = { id: uid('row') };
@@ -104,7 +111,7 @@ export function wireEvents(sections, rerender) {
     });
   });
 
-  document.querySelectorAll('.doc-fields-table .cell-input').forEach((input) => {
+  root.querySelectorAll('.doc-fields-table .cell-input').forEach((input) => {
     const evt = input.tagName === 'SELECT' ? 'change' : 'input';
     input.addEventListener(evt, () => {
       const entry = findSection(input.dataset.sectionId).entries.find((e) => e.id === input.dataset.rowId);
@@ -113,7 +120,7 @@ export function wireEvents(sections, rerender) {
     });
   });
 
-  document.querySelectorAll('[data-remove-row]').forEach((btn) => {
+  root.querySelectorAll('[data-remove-row]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const [sectionId, rowId] = btn.dataset.removeRow.split('|');
       const section = findSection(sectionId);
@@ -123,7 +130,7 @@ export function wireEvents(sections, rerender) {
     });
   });
 
-  document.querySelectorAll('[data-remove-section]').forEach((btn) => {
+  root.querySelectorAll('[data-remove-section]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const idx = sections.findIndex((s) => s.id === btn.dataset.removeSection);
       if (idx >= 0) sections.splice(idx, 1);
