@@ -63,12 +63,17 @@ function load() {
         stored.docsVersion = fresh.docsVersion;
         changed = true;
       }
-      // eventsFunnelVersion 2: Event Attendance lists Event 1-4; keep the weekly numbers already entered.
-      if ((stored.eventsFunnelVersion || 1) < fresh.eventsFunnelVersion) {
-        for (const key of ['eventsNycFunnel', 'eventsSfFunnel']) {
-          const section = stored[key]?.find((s) => s.id.endsWith('-attendance'));
+      // Event Attendance / Partnership Events name lists changed; swap the names, keep the weekly numbers.
+      //   eventsFunnelVersion 2: Event Attendance lists Event 1-4 (NYC and SF).
+      //   eventsFunnelVersion 3: SF Partnership Events lists the SF companies to collab with.
+      const funnelVersion = stored.eventsFunnelVersion || 1;
+      if (funnelVersion < fresh.eventsFunnelVersion) {
+        const refresh = (key, suffix) => {
+          const section = stored[key]?.find((s) => s.id.endsWith(suffix));
           if (section) section.entities = fresh[key].find((s) => s.id === section.id).entities;
-        }
+        };
+        if (funnelVersion < 2) ['eventsNycFunnel', 'eventsSfFunnel'].forEach((key) => refresh(key, '-attendance'));
+        if (funnelVersion < 3) refresh('eventsSfFunnel', '-partnerships');
         stored.eventsFunnelVersion = fresh.eventsFunnelVersion;
         changed = true;
       }

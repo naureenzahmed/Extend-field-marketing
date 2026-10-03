@@ -180,6 +180,13 @@ function seedRecruitmentFunnel() {
   ];
 }
 
+/* Partnership Events companies per city. */
+const PARTNERS = {
+  nyc: ['Corgi', 'Verci', 'General Intelligence Company of New York', 'Anti Roch', 'Ramp', 'Clay', 'Brex', '222'],
+  // SF: companies to collab with.
+  sf: ['Circleback', 'Rentahuman AI', 'Corgi Cafe', 'build.ai', 'PostHog', 'Solo Founders'],
+};
+
 /* Event Attendance and Partnership Events, moved from the Recruitment Funnel; NYC and SF each get their own copy. */
 function seedEventsFunnel(prefix) {
   return [
@@ -201,16 +208,7 @@ function seedEventsFunnel(prefix) {
     {
       id: `${prefix}-partnerships`,
       title: 'Partnership Events',
-      entities: [
-        { name: 'Corgi', links: [] },
-        { name: 'Verci', links: [] },
-        { name: 'General Intelligence Company of New York', links: [] },
-        { name: 'Anti Roch', links: [] },
-        { name: 'Ramp', links: [] },
-        { name: 'Clay', links: [] },
-        { name: 'Brex', links: [] },
-        { name: '222', links: [] },
-      ],
+      entities: PARTNERS[prefix].map((name) => ({ name, links: [] })),
       metrics: [
         { id: 'm1', label: 'Leads (#)', target: '40 per event', values: {} },
         { id: 'm2', label: 'Interview Booked (%)', target: '37.5%', values: {} },
@@ -344,7 +342,7 @@ export function seedData() {
     externalConferences: [newConference('conf-1', 'Conference Name')],
     eventsImportVersion: 1,
     eventsNyc: withExternalEvents(sections('nyc', ['External Events', 'Internal Events'], EVENT_FIELDS), NYC_EXTERNAL_EVENTS),
-    eventsFunnelVersion: 2,
+    eventsFunnelVersion: 3,
     eventsNycFunnel: seedEventsFunnel('nyc'),
     eventsSfFunnel: seedEventsFunnel('sf'),
     eventsSf: withExternalEvents(sections('sf', ['External Events', 'Internal Events'], EVENT_FIELDS), SF_EXTERNAL_EVENTS),
