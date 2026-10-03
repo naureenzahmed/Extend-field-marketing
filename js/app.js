@@ -4,6 +4,7 @@ import { renderCover } from './pages/cover.js';
 import { renderDocumentation } from './pages/documentation.js';
 import { renderTableSectionsPage } from './pages/tableSections.js';
 import { renderExternalConferences } from './pages/externalConferences.js';
+import { renderRoadmap } from './pages/roadmap.js';
 
 const tablePage = (key, title, fields, rowLabel) => (c) => renderTableSectionsPage(c, key, { title, fields, rowLabel });
 
@@ -14,6 +15,8 @@ const PAGES = {
   externalConferences: { label: 'External Conferences', dataKey: 'externalConferences', render: renderExternalConferences },
   eventsNyc: { label: 'Events NYC', dataKey: 'eventsNyc', render: tablePage('eventsNyc', 'Events NYC', EVENT_FIELDS, 'Add event') },
   eventsSf: { label: 'Events SF', dataKey: 'eventsSf', render: tablePage('eventsSf', 'Events SF', EVENT_FIELDS, 'Add event') },
+  // Not in the nav: opened by clicking the target in the header.
+  roadmap: { label: 'Roadmap', hidden: true, render: renderRoadmap },
 };
 
 function currentRoute() {
@@ -55,31 +58,33 @@ function renderHeader(route) {
         <img src="assets/extend-logo.jpg" alt="" /><span class="wordmark-text">Extend</span>
       </div>
       <nav class="nav-tabs">
-        ${Object.entries(PAGES).map(([key, p]) => `
+        ${Object.entries(PAGES).filter(([, p]) => !p.hidden).map(([key, p]) => `
           <a class="nav-tab ${key === route ? 'active' : ''}" href="#/${key}">${p.label}</a>
         `).join('')}
       </nav>
     </div>
-    <div class="header-goal" id="header-goal">
+    <a class="header-goal ${route === 'roadmap' ? 'active' : ''}" id="header-goal" href="#/roadmap" title="Open roadmap">
       <div>
         <div class="goal-sub">${escapeAttr(data.companyGoal.title)}</div>
         <div class="goal-value">${data.companyGoal.current}${data.companyGoal.unit} <span class="goal-sub">/ ${data.companyGoal.target}${data.companyGoal.unit}</span></div>
       </div>
       <span class="pill">${pct}%</span>
-    </div>
+    </a>
   `;
+}
 
-  document.getElementById('header-goal').addEventListener('click', () => {
-    const title = prompt('Goal title', data.companyGoal.title);
-    if (title === null) return;
-    const current = Number(prompt('Current value', data.companyGoal.current));
-    const target = Number(prompt('Target value', data.companyGoal.target));
-    data.companyGoal.title = title;
-    if (!Number.isNaN(current)) data.companyGoal.current = current;
-    if (!Number.isNaN(target)) data.companyGoal.target = target;
-    commit();
-    rerender();
-  });
+/* Edit the header target; used from the roadmap page. */
+export function editCompanyGoal() {
+  const data = getData();
+  const title = prompt('Goal title', data.companyGoal.title);
+  if (title === null) return;
+  const current = Number(prompt('Current value', data.companyGoal.current));
+  const target = Number(prompt('Target value', data.companyGoal.target));
+  data.companyGoal.title = title;
+  if (!Number.isNaN(current)) data.companyGoal.current = current;
+  if (!Number.isNaN(target)) data.companyGoal.target = target;
+  commit();
+  rerender();
 }
 
 function escapeAttr(s) {

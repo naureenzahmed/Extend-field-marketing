@@ -545,3 +545,8 @@ a.doc-title:hover { text-decoration: underline; }
 }
 .conference-group-head { margin-bottom: 12px; }
 .conference-group-title { font-size: 17px; font-weight: 700; margin: 0; }
+
+/* Header target links to the roadmap */
+a.header-goal { color: inherit; text-decoration: none; }
+.header-goal.active { background: var(--bg-raised); }
+.goal-banner .goal-icon img { width: 30px; height: 30px; mix-blend-mode: multiply; }

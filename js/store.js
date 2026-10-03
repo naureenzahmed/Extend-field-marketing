@@ -57,3 +57,19 @@ export function resetData() {
   data = seedData();
   save(data);
 }
+
+export function findPerson(id) {
+  return data.people.find((p) => p.id === id) || null;
+}
+
+export function findTeam(id) {
+  return data.teams.find((t) => t.id === id) || null;
+}
+
+export function findInitiative(id) {
+  return data.initiatives.find((i) => i.id === id) || null;
+}
+
+export function findTask(id) {
+  return data.tasks.find((t) => t.id === id) || null;
+}

@@ -1,3 +1,5 @@
+import { addDays, todayISO, uid } from './utils.js';
+
 export const LEAD_FIELDS = [
   { key: 'name', label: 'Name' },
   { key: 'company', label: 'Company' },
@@ -108,11 +110,121 @@ function seedDocs() {
   ];
 }
 
+/* ---------- Roadmap (opened from the header target) ---------- */
+
+export const TEAMS = [
+  { id: 'team-a', name: 'Team A', color: '#6c8cff' },
+  { id: 'team-b', name: 'Team B', color: '#ef6f6c' },
+  { id: 'team-c', name: 'Team C', color: '#57c785' },
+];
+
+export const PEOPLE = [
+  { id: 'p1', name: 'Alex', role: 'Engineer', teamId: 'team-a' },
+  { id: 'p2', name: 'Sam', role: 'Engineer', teamId: 'team-a' },
+  { id: 'p3', name: 'Taylor', role: 'Engineer', teamId: 'team-a' },
+  { id: 'p4', name: 'Jordan', role: 'Product Manager', teamId: 'team-a' },
+  { id: 'p5', name: 'Riley', role: 'Designer', teamId: 'team-a' },
+  { id: 'p6', name: 'Casey', role: 'Product Manager', teamId: 'team-b' },
+  { id: 'p7', name: 'Morgan', role: 'Designer', teamId: 'team-b' },
+  { id: 'p8', name: 'Drew', role: 'Engineer', teamId: 'team-b' },
+  { id: 'p9', name: 'Blake', role: 'Engineer', teamId: 'team-b' },
+  { id: 'p10', name: 'Quinn', role: 'Product Manager', teamId: 'team-c' },
+  { id: 'p11', name: 'Sage', role: 'Designer', teamId: 'team-c' },
+  { id: 'p12', name: 'Reese', role: 'Engineer', teamId: 'team-c' },
+];
+
+export const INITIATIVES = [
+  { id: 'init-1', name: 'Initiative 1', teamId: 'team-a', goalLabel: 'Reach target', current: 0, target: 100, unit: '%' },
+  { id: 'init-2', name: 'Initiative 2', teamId: 'team-b', goalLabel: 'Reach target', current: 0, target: 100, unit: '%' },
+  { id: 'init-3', name: 'Initiative 3', teamId: 'team-c', goalLabel: 'Reach target', current: 0, target: 100, unit: '%' },
+];
+
+const TASK_STATUSES = ['Backlog', 'Ready', 'In progress', 'In design', 'Committed', 'Done'];
+
+function randomInt(min, max) {
+  return min + Math.floor(Math.random() * (max - min + 1));
+}
+
+function seedTasks() {
+  const tasks = [];
+  INITIATIVES.forEach((init) => {
+    const teamPeople = PEOPLE.filter((p) => p.teamId === init.teamId);
+    const count = randomInt(2, 4);
+    for (let i = 1; i <= count; i++) {
+      const startOffset = randomInt(-21, 45);
+      const duration = randomInt(3, 12);
+      const assignee = teamPeople.length ? teamPeople[randomInt(0, teamPeople.length - 1)] : null;
+      tasks.push({
+        id: uid('task'),
+        title: `Task ${i}`,
+        description: 'Example task description — replace with the real scope of work.',
+        impact: 'Example impact statement.',
+        status: TASK_STATUSES[randomInt(0, TASK_STATUSES.length - 1)],
+        assigneeId: assignee ? assignee.id : null,
+        startDate: addDays(todayISO(), startOffset),
+        endDate: addDays(todayISO(), startOffset + duration),
+        designDeadline: '',
+        sectionId: init.id,
+        teamId: init.teamId,
+        client: '',
+        createdBy: 'You',
+        blockedBy: [],
+        subtasks: [],
+        comments: [],
+      });
+    }
+  });
+  return tasks;
+}
+
+function seedMilestones() {
+  return [
+    { id: 'ms1', date: addDays(todayISO(), -30), title: 'Milestone 1', teamId: 'team-a' },
+    { id: 'ms2', date: addDays(todayISO(), -10), title: 'Milestone 2', teamId: 'team-b' },
+    { id: 'ms3', date: addDays(todayISO(), 20), title: 'Milestone 3', teamId: 'team-c' },
+    { id: 'ms4', date: addDays(todayISO(), 60), title: 'Milestone 4', teamId: 'team-a' },
+  ];
+}
+
+function seedOkrs() {
+  return [
+    {
+      id: 'okr-company', objective: 'Sector Objective 1', teamId: null,
+      keyResults: [
+        { id: 'kr-co-1', title: 'Key result 1', current: 0, target: 100, deadline: addDays(todayISO(), 90), assigneeIds: [] },
+        { id: 'kr-co-2', title: 'Key result 2', current: 0, target: 100, deadline: addDays(todayISO(), 60), assigneeIds: [] },
+      ],
+    },
+    {
+      id: 'okr-1', objective: 'Objective 1', teamId: 'team-a',
+      keyResults: [
+        { id: 'kr-1-1', title: 'Key result 1', current: 0, target: 100, deadline: addDays(todayISO(), 30), assigneeIds: ['p1', 'p4'] },
+        { id: 'kr-1-2', title: 'Key result 2', current: 0, target: 100, deadline: addDays(todayISO(), 45), assigneeIds: ['p2'] },
+      ],
+    },
+    {
+      id: 'okr-2', objective: 'Objective 2', teamId: 'team-b',
+      keyResults: [{ id: 'kr-2-1', title: 'Key result 1', current: 0, target: 100, deadline: addDays(todayISO(), 30), assigneeIds: ['p6', 'p8'] }],
+    },
+    {
+      id: 'okr-3', objective: 'Objective 3', teamId: 'team-c',
+      keyResults: [{ id: 'kr-3-1', title: 'Key result 1', current: 0, target: 100, deadline: addDays(todayISO(), 30), assigneeIds: ['p10', 'p12'] }],
+    },
+  ];
+}
+
 export function seedData() {
   const year = new Date().getFullYear();
   return {
     companyGoal: { title: 'EoY target', current: 0, target: 100, unit: '%', targetDate: `${year}-12-31` },
     schemaVersions: { events: 2, conferences: 3 },
+    teams: TEAMS,
+    people: PEOPLE,
+    initiatives: INITIATIVES,
+    milestones: seedMilestones(),
+    okrs: seedOkrs(),
+    tasks: seedTasks(),
+    slackWebhookUrl: '',
     docs: seedDocs(),
     leadLists: sections('leads', ['Conference Attendee Lists', 'Event RSVPs', 'Target Accounts'], LEAD_FIELDS),
     externalConferences: [newConference('conf-1', 'Conference Name')],
@@ -124,6 +236,7 @@ export function seedData() {
       externalConferences: '',
       eventsNyc: '',
       eventsSf: '',
+      roadmap: '',
     },
   };
 }
