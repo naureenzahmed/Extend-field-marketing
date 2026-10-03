@@ -558,3 +558,11 @@ a.header-goal { color: inherit; text-decoration: none; }
 .header-goal { flex-shrink: 0; }
 .conference-summary-field + .conference-summary-field { margin-top: 14px; }
 .conference-summary .notes-box { min-height: 64px; margin-top: 6px; background: var(--bg-raised); }
+
+/* Documentation: social links beside a row title (Inspiration) */
+.doc-title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.doc-socials { display: inline-flex; gap: 6px; align-items: center; }
+.doc-social { display: inline-flex; width: 16px; height: 16px; color: var(--text-dim); }
+.doc-social svg { width: 16px; height: 16px; }
+a.doc-social:hover { color: var(--text); }
+.doc-social.empty { opacity: 0.3; }

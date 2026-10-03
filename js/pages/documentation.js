@@ -2,6 +2,28 @@ import { getData, commit } from '../store.js';
 import { uid, escapeHtml } from '../utils.js';
 import { notesBoxHtml } from '../notesBox.js';
 
+const SOCIALS = [
+  {
+    key: 'linkedin', label: 'LinkedIn',
+    icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="4" fill="currentColor"/><path d="M7 10v7M7 7v.01M11 17v-7M11 13.5c0-2 1.2-3.5 3-3.5s3 1.2 3 3.5V17" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/></svg>',
+  },
+  {
+    key: 'x', label: 'X',
+    icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4l16 16M20 4L4 20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
+  },
+  {
+    key: 'instagram', label: 'Instagram',
+    icon: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="0.6" fill="currentColor"/></svg>',
+  },
+];
+
+/* LinkedIn / X / Instagram icons; dimmed and unlinked until a URL is added via Edit. */
+function socialLinksHtml(e) {
+  return `<span class="doc-socials">${SOCIALS.map((soc) => (e[soc.key]
+    ? `<a class="doc-social" href="${escapeHtml(e[soc.key])}" target="_blank" rel="noopener" title="${soc.label}" aria-label="${soc.label}">${soc.icon}</a>`
+    : `<span class="doc-social empty" title="No ${soc.label} link yet">${soc.icon}</span>`)).join('')}</span>`;
+}
+
 export function renderDocumentation(container) {
   const data = getData();
   const sections = data.docs;
@@ -102,7 +124,10 @@ function renderSimpleSection(s) {
           ${s.entries.map((e) => `
             <div class="doc-row">
               <div class="doc-row-main">
-                ${e.url ? `<a href="${escapeHtml(e.url)}" target="_blank" rel="noopener" class="doc-title">${escapeHtml(e.title)}</a>` : `<span class="doc-title">${escapeHtml(e.title)}</span>`}
+                <div class="doc-title-row">
+                  ${e.url ? `<a href="${escapeHtml(e.url)}" target="_blank" rel="noopener" class="doc-title">${escapeHtml(e.title)}</a>` : `<span class="doc-title">${escapeHtml(e.title)}</span>`}
+                  ${s.socials ? socialLinksHtml(e) : ''}
+                </div>
                 ${e.notes ? `<div class="doc-notes">${escapeHtml(e.notes)}</div>` : ''}
               </div>
               <div class="doc-row-actions">
@@ -199,6 +224,13 @@ function wireEvents(container, sections) {
       if (url === null) return;
       const notes = prompt('Notes (optional)', entry.notes || '');
       if (notes === null) return;
+      if (section.socials) {
+        for (const soc of SOCIALS) {
+          const value = prompt(`${soc.label} URL (optional)`, entry[soc.key] || '');
+          if (value === null) return;
+          entry[soc.key] = value.trim();
+        }
+      }
       entry.title = title.trim() || entry.title;
       entry.url = url.trim();
       entry.notes = notes.trim();

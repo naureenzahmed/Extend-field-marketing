@@ -93,6 +93,21 @@ function docList(id, title, titles) {
   };
 }
 
+const INSPIRATION = [
+  { title: 'Long Journey Ventures', linkedin: 'https://www.linkedin.com/company/longjourney', x: 'https://x.com/LongJourneyVC', instagram: '' },
+  { title: 'Gumloop', linkedin: '', x: 'https://x.com/gumloop', instagram: '' },
+  { title: 'New York Startup Week', linkedin: '', x: '', instagram: '' },
+  { title: 'Verci', linkedin: '', x: '', instagram: '' },
+];
+
+export function seedInspiration() {
+  return {
+    ...docList('docs-inspiration', 'Inspiration', INSPIRATION.map((i) => i.title)),
+    socials: true,
+    entries: INSPIRATION.map((i, n) => ({ id: `docs-inspiration-${n + 1}`, url: '', notes: '', ...i })),
+  };
+}
+
 function seedDocs() {
   return [
     {
@@ -110,7 +125,7 @@ function seedDocs() {
     docList('docs-templates', 'Templates', ['Event Invite Email', 'Event Follow-Up Email', 'Event Landing Page']),
     docList('docs-attendee-lists', 'Attendee Lists', ['Event 1', 'Event 2', 'Event 3']),
     docList('docs-event-checklists', 'Event Checklists', ['Event 1', 'Event 2', 'Event 3']),
-    docList('docs-inspiration', 'Inspiration', ['Long Journey Ventures', 'Gumloop', 'New York Startup Week', 'Verci']),
+    seedInspiration(),
   ];
 }
 
@@ -307,7 +322,7 @@ export function seedData() {
     weeks: seedWeeks(),
     recruitmentFunnel: seedRecruitmentFunnel(),
     docs: seedDocs(),
-    docsVersion: 3,
+    docsVersion: 4,
     leadLists: sections('leads', ['Conference Attendee Lists', 'Event RSVPs', 'Target Accounts'], LEAD_FIELDS),
     externalConferences: [newConference('conf-1', 'Conference Name')],
     eventsNyc: sections('nyc', ['External Events', 'Internal Events'], EVENT_FIELDS),

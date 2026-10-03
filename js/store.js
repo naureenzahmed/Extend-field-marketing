@@ -1,4 +1,4 @@
-import { seedData } from './seed.js';
+import { seedData, seedInspiration } from './seed.js';
 
 const STORAGE_KEY = 'extendFieldMarketingData.v1';
 
@@ -13,6 +13,21 @@ const SCHEMA_KEYS = {
 const DOC_SECTIONS_ADDED = {
   2: ['docs-attendee-lists', 'docs-event-checklists'],
   3: ['docs-inspiration'],
+};
+
+// One-off fixes to existing Documentation sections, by docsVersion.
+const DOC_PATCHES = {
+  // Inspiration rows gain LinkedIn / X / Instagram links; fill blanks from the seed by title.
+  4: (docs) => {
+    const section = docs.find((s) => s.id === 'docs-inspiration');
+    if (!section) return;
+    section.socials = true;
+    const seeded = seedInspiration().entries;
+    section.entries.forEach((e) => {
+      const match = seeded.find((x) => x.title === e.title);
+      ['linkedin', 'x', 'instagram'].forEach((k) => { if (!e[k]) e[k] = match?.[k] || ''; });
+    });
+  },
 };
 
 let data = load();
@@ -34,15 +49,16 @@ function load() {
       }
       if (changed) stored.schemaVersions = fresh.schemaVersions;
       delete stored.eventsSchema;
-      // Add Documentation sections introduced after this data was saved, once per version,
-      // so a section the user deletes stays deleted.
+      // Bring saved Documentation up to the current docsVersion: add sections introduced since
+      // (once, so a section the user deletes stays deleted) and apply one-off patches.
       const docsVersion = stored.docsVersion || 1;
       if (docsVersion < fresh.docsVersion) {
-        for (const [version, ids] of Object.entries(DOC_SECTIONS_ADDED)) {
-          if (Number(version) <= docsVersion) continue;
+        for (let version = docsVersion + 1; version <= fresh.docsVersion; version++) {
+          const ids = DOC_SECTIONS_ADDED[version] || [];
           for (const section of fresh.docs.filter((s) => ids.includes(s.id))) {
             if (!stored.docs.some((s) => s.id === section.id)) stored.docs.push(section);
           }
+          DOC_PATCHES[version]?.(stored.docs);
         }
         stored.docsVersion = fresh.docsVersion;
         changed = true;
