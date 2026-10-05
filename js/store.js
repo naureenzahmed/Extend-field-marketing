@@ -68,6 +68,7 @@ function load() {
       //   eventsFunnelVersion 3: SF Partnership Events lists the SF companies to collab with.
       //   eventsFunnelVersion 4-5: SF Partnership Events list updated again.
       //   eventsFunnelVersion 6: NYC Partnership Events adds Betaworks and Rho (appended, existing names kept).
+      //   eventsFunnelVersion 7: NYC Partnership Events drops 222.
       const funnelVersion = stored.eventsFunnelVersion || 1;
       if (funnelVersion < fresh.eventsFunnelVersion) {
         const refresh = (key, suffix) => {
@@ -81,6 +82,10 @@ function load() {
           const added = fresh.eventsNycFunnel.find((s) => s.id === 'nyc-partnerships').entities
             .filter((e) => ['Betaworks', 'Rho'].includes(e.name));
           added.forEach((e) => { if (section && !section.entities.some((x) => x.name === e.name)) section.entities.push(e); });
+        }
+        if (funnelVersion < 7) {
+          const section = stored.eventsNycFunnel?.find((s) => s.id === 'nyc-partnerships');
+          if (section) section.entities = section.entities.filter((e) => e.name !== '222');
         }
         stored.eventsFunnelVersion = fresh.eventsFunnelVersion;
         changed = true;
