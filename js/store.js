@@ -66,7 +66,7 @@ function load() {
       // Event Attendance / Partnership Events name lists changed; swap the names, keep the weekly numbers.
       //   eventsFunnelVersion 2: Event Attendance lists Event 1-4 (NYC and SF).
       //   eventsFunnelVersion 3: SF Partnership Events lists the SF companies to collab with.
-      //   eventsFunnelVersion 4: SF Partnership Events list replaced again.
+      //   eventsFunnelVersion 4-5: SF Partnership Events list updated again.
       const funnelVersion = stored.eventsFunnelVersion || 1;
       if (funnelVersion < fresh.eventsFunnelVersion) {
         const refresh = (key, suffix) => {
@@ -74,7 +74,7 @@ function load() {
           if (section) section.entities = fresh[key].find((s) => s.id === section.id).entities;
         };
         if (funnelVersion < 2) ['eventsNycFunnel', 'eventsSfFunnel'].forEach((key) => refresh(key, '-attendance'));
-        if (funnelVersion < 4) refresh('eventsSfFunnel', '-partnerships');
+        if (funnelVersion < 5) refresh('eventsSfFunnel', '-partnerships');
         stored.eventsFunnelVersion = fresh.eventsFunnelVersion;
         changed = true;
       }
