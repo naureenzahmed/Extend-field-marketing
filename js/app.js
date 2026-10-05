@@ -12,10 +12,10 @@ const PAGES = {
   home: { label: 'Home', render: (c) => renderCover(c, PAGES) },
   documentation: { label: 'Documentation', dataKey: 'docs', render: renderDocumentation },
   leadLists: { label: 'Lead Lists', dataKey: 'leadLists', render: tablePage('leadLists', 'Lead Lists', LEAD_FIELDS, 'Add lead') },
-  recruitmentFunnel: { label: 'Recruitment Funnel', dataKey: 'recruitmentCandidates', extraDataKey: 'recruitmentFunnel', render: tablePage('recruitmentCandidates', 'Recruitment Funnel', CANDIDATE_FIELDS, 'Add person', { showEmptyTable: true, trackerKey: 'recruitmentFunnel', notesKey: 'recruitmentFunnel' }) },
   externalConferences: { label: 'External Conferences', dataKey: 'externalConferences', render: renderExternalConferences },
   eventsNyc: { label: 'Events NYC', dataKey: 'eventsNyc', extraDataKey: 'eventsNycFunnel', render: tablePage('eventsNyc', 'Events NYC', EVENT_FIELDS, 'Add event', { showEmptyTable: true, trackerKey: 'eventsNycFunnel' }) },
   eventsSf: { label: 'Events SF', dataKey: 'eventsSf', extraDataKey: 'eventsSfFunnel', render: tablePage('eventsSf', 'Events SF', EVENT_FIELDS, 'Add event', { showEmptyTable: true, trackerKey: 'eventsSfFunnel' }) },
+  recruitmentFunnel: { label: 'Recruitment Funnel', dataKey: 'recruitmentCandidates', extraDataKey: 'recruitmentFunnel', render: tablePage('recruitmentCandidates', 'Recruitment Funnel', CANDIDATE_FIELDS, 'Add person', { showEmptyTable: true, trackerKey: 'recruitmentFunnel', notesKey: 'recruitmentFunnel' }) },
   // Not in the nav: opened by clicking the target in the header.
   roadmap: { label: 'Roadmap', hidden: true, render: renderRoadmap },
 };
