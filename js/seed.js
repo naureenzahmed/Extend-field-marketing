@@ -189,7 +189,7 @@ function seedRecruitmentFunnel() {
 
 /* Partnership Events companies per city. */
 const PARTNERS = {
-  nyc: ['Corgi', 'Verci', 'General Intelligence Company of New York', 'Anti Roch', 'Ramp', 'Clay', 'Brex', '222'],
+  nyc: ['Corgi', 'Verci', 'General Intelligence Company of New York', 'Anti Roch', 'Ramp', 'Clay', 'Brex', '222', 'Betaworks', 'Rho'],
   sf: ['Corgi', 'Circleback', 'Gumloop', 'Mintlify', 'Vercel', 'Discord', 'Rentahuman AI', 'PostHog', 'Solo Founders'],
 };
 
@@ -349,7 +349,7 @@ export function seedData() {
     externalConferences: [newConference('conf-1', 'Conference Name')],
     eventsImportVersion: 2,
     eventsNyc: withEvents(sections('nyc', ['External Events', 'Internal Events'], EVENT_FIELDS), NYC_EXTERNAL_EVENTS),
-    eventsFunnelVersion: 5,
+    eventsFunnelVersion: 6,
     eventsNycFunnel: seedEventsFunnel('nyc'),
     eventsSfFunnel: seedEventsFunnel('sf'),
     eventsSf: withEvents(sections('sf', ['External Events', 'Internal Events'], EVENT_FIELDS), SF_EXTERNAL_EVENTS, SF_INTERNAL_EVENTS),
