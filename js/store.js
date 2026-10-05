@@ -100,6 +100,14 @@ function load() {
         stored.eventsImportVersion = fresh.eventsImportVersion;
         changed = true;
       }
+      // titlesVersion 1: "Target Accounts" on Lead Lists becomes "Target Accounts with Interaction"
+      // (only if the user hasn't renamed it themselves).
+      if ((stored.titlesVersion || 0) < fresh.titlesVersion) {
+        const section = stored.leadLists?.find((s) => s.id === 'leads-target-accounts');
+        if (section?.title === 'Target Accounts') section.title = 'Target Accounts with Interaction';
+        stored.titlesVersion = fresh.titlesVersion;
+        changed = true;
+      }
       // Backfill any keys added to the seed after this data was first saved.
       for (const key of Object.keys(fresh)) {
         if (!(key in stored)) { stored[key] = fresh[key]; changed = true; }

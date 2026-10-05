@@ -96,6 +96,12 @@ function sections(prefix, titles, fields) {
   }));
 }
 
+/* Retitles a section while keeping the id it was created with (ids come from the original title). */
+function renameSection(pageSections, id, title) {
+  pageSections.find((s) => s.id === id).title = title;
+  return pageSections;
+}
+
 /* Fills an events page's External and Internal Events sections. */
 function withEvents(pageSections, external, internal = []) {
   pageSections[0].entries = external.map((e) => ({ ...e }));
@@ -339,7 +345,8 @@ export function seedData() {
     recruitmentCandidates: sections('rec', ['Candidates'], CANDIDATE_FIELDS),
     docs: seedDocs(),
     docsVersion: 4,
-    leadLists: sections('leads', ['Conference Attendee Lists', 'Event RSVPs', 'Target Accounts'], LEAD_FIELDS),
+    titlesVersion: 1,
+    leadLists: renameSection(sections('leads', ['Conference Attendee Lists', 'Event RSVPs', 'Target Accounts'], LEAD_FIELDS), 'leads-target-accounts', 'Target Accounts with Interaction'),
     externalConferences: [newConference('conf-1', 'Conference Name')],
     eventsImportVersion: 2,
     eventsNyc: withEvents(sections('nyc', ['External Events', 'Internal Events'], EVENT_FIELDS), NYC_EXTERNAL_EVENTS),
