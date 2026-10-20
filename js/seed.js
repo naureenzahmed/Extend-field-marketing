@@ -141,16 +141,16 @@ function seedEventsFunnel(prefix) {
 /* ---------- Partnerships page: one section per industry ---------- */
 
 export const PARTNERSHIP_INDUSTRIES = [
-  'Documentation Software', 'HR Software', 'Finance', 'Banking', 'Community', 'Pharmaceutical',
-  'Cybersecurity', 'Health Care', 'AI', 'Dev Tools', 'Sales Tools', 'Insurance', 'Others',
+  'Documentation Software', 'HR Software', 'Finance & Banking', 'Community',
+  'Cybersecurity', 'Health Care', 'AI', 'Dev Tools', 'Sales Tools', 'Others',
 ];
 
 // Industry for companies we could place; anything else starts in Unassigned.
 const PARTNER_INDUSTRY = {
-  Corgi: 'Insurance',
-  Ramp: 'Finance',
-  Brex: 'Finance',
-  Rho: 'Banking',
+  Corgi: 'Others',
+  Ramp: 'Finance & Banking',
+  Brex: 'Finance & Banking',
+  Rho: 'Finance & Banking',
   Clay: 'Sales Tools',
   Betaworks: 'Community',
   Discord: 'Community',
@@ -163,23 +163,20 @@ const PARTNER_INDUSTRY = {
 };
 
 // Industries used on the events pages that map onto a Partnerships section.
-const INDUSTRY_ALIASES = { Pharmaceuticals: 'Pharmaceutical' };
+const INDUSTRY_ALIASES = { Pharmaceuticals: 'Pharmaceutical', Finance: 'Finance & Banking', Banking: 'Finance & Banking' };
 
 // Further companies per industry (no city yet); skipped if the name is already on the page.
 export const PARTNER_ADDITIONS = {
   'Documentation Software': ['Notion', 'Atlassian (Confluence)', 'Mintlify', 'GitBook', 'Grammarly / Superhuman (owns Coda)'],
   'HR Software': ['Rippling', 'Deel', 'Gusto', 'Lattice', 'Ashby'],
-  Finance: ['Stripe', 'Ramp', 'Brex', 'Plaid', 'Mercury'],
-  Banking: ['Revolut', 'Nubank', 'Monzo', 'Chime', 'Wise', 'JPMorgan Chase (kept for its large AI investment)'],
+  'Finance & Banking': ['Stripe', 'Ramp', 'Brex', 'Plaid', 'Mercury', 'Revolut', 'Nubank', 'Monzo', 'Chime', 'Wise', 'JPMorgan Chase (kept for its large AI investment)'],
   Community: ['Discord', 'Reddit', 'Circle', 'Skool'],
-  Pharmaceutical: ['Isomorphic Labs (from Google DeepMind)', 'Recursion', 'Insitro', 'Xaira Therapeutics', 'Novo Nordisk'],
   Cybersecurity: ['Wiz (being acquired by Google)', 'CrowdStrike', 'Cloudflare', 'Vanta', '1Password', 'Snyk'],
-  'Health Care': ['Abridge', 'Hippocratic AI', 'Tempus AI', 'Oscar Health', 'Hinge Health'],
+  'Health Care': ['Abridge', 'Hippocratic AI', 'Tempus AI', 'Oscar Health', 'Hinge Health', 'Dialogue'],
   AI: ['OpenAI', 'Anthropic', 'Cursor (SpaceX)', 'Gumloop'],
-  'Dev Tools': ['Vercel', 'Supabase', 'Linear', 'Replit', 'Retool', 'PostHog'],
+  'Dev Tools': ['Vercel', 'Supabase', 'Linear', 'Replit', 'Retool', 'PostHog', 'MongoDB'],
   'Sales Tools': ['Clay', 'Gong', 'Apollo.io', 'Attio', 'HubSpot'],
-  Insurance: ['Lemonade', 'Coalition', 'Vouch', 'Root', 'Next Insurance'],
-  Others: ['Harvey'],
+  Others: ['Harvey', 'Recursion', 'Novo Nordisk'],
 };
 
 /* Appends PARTNER_ADDITIONS to the matching industry sections, skipping names already anywhere on the page. */
@@ -247,6 +244,7 @@ export const PARTNER_HQ = {
   'Tempus AI': 'Chicago, IL',
   'Oscar Health': NYC,
   'Hinge Health': SF,
+  Dialogue: 'Montreal, Canada',
   Gumloop: SF,
   OpenAI: SF,
   Anthropic: SF,
@@ -257,6 +255,7 @@ export const PARTNER_HQ = {
   Linear: SF,
   Replit: 'Foster City, CA',
   Retool: SF,
+  MongoDB: NYC,
   Clay: NYC,
   Gong: SF,
   'Apollo.io': SF,
@@ -271,15 +270,41 @@ export const PARTNER_HQ = {
   Harvey: SF,
 };
 
-/* Sets each known company's city to its headquarters. */
-export function applyPartnerHQ(sections) {
+/* Sets each known company's city to its headquarters (only blank cities when onlyBlank). */
+export function applyPartnerHQ(sections, { onlyBlank = false } = {}) {
   for (const section of sections) {
-    for (const e of section.entities || []) if (PARTNER_HQ[e.name]) e.city = PARTNER_HQ[e.name];
+    for (const e of section.entities || []) {
+      if (PARTNER_HQ[e.name] && (!onlyBlank || !e.city)) e.city = PARTNER_HQ[e.name];
+    }
   }
   return sections;
 }
 
 export const PARTNERSHIP_UNASSIGNED_ID = 'partner-unassigned';
+export const PARTNERSHIP_OTHERS_ID = 'partner-others';
+
+// Industry labels for companies in Others.
+export const OTHERS_INDUSTRY_LABELS = { Corgi: 'Insurance', Harvey: 'Law', Recursion: 'Pharmaceutical', 'Novo Nordisk': 'Pharmaceutical' };
+
+// Sections that were dropped, and the companies from each that moved to Others (the rest were removed).
+export const DROPPED_SECTIONS = { Insurance: ['Corgi'], Pharmaceutical: ['Recursion', 'Novo Nordisk'] };
+
+// Companies listed in a second section as well.
+const ALSO_IN = {};
+
+/* Puts ALSO_IN companies into their extra sections and labels Others companies. */
+export function applyPartnerPlacements(sections) {
+  for (const [title, names] of Object.entries(ALSO_IN)) {
+    const section = sections.find((s) => s.title === title);
+    for (const name of names) {
+      const source = sections.flatMap((s) => s.entities || []).find((e) => e.name === name);
+      if (section && source && !section.entities.some((e) => e.name === name)) section.entities.push({ ...source, links: [] });
+    }
+  }
+  const others = sections.find((s) => s.id === PARTNERSHIP_OTHERS_ID);
+  (others?.entities || []).forEach((e) => { if (!e.industryLabel && OTHERS_INDUSTRY_LABELS[e.name]) e.industryLabel = OTHERS_INDUSTRY_LABELS[e.name]; });
+  return sections;
+}
 
 export function partnershipMetrics() {
   return partnershipFunnelMetrics();
@@ -324,7 +349,7 @@ export function mergeCityCompanies(byCity) {
 
 function seedPartnerships() {
   const toCompanies = (names) => names.map((name) => ({ name, links: [] }));
-  return applyPartnerHQ(addPartnerAdditions(buildPartnershipSections(mergeCityCompanies({ NYC: toCompanies(PARTNERS.nyc), SF: toCompanies(PARTNERS.sf) }))));
+  return applyPartnerPlacements(applyPartnerHQ(addPartnerAdditions(buildPartnershipSections(mergeCityCompanies({ NYC: toCompanies(PARTNERS.nyc), SF: toCompanies(PARTNERS.sf) })))));
 }
 
 /* ---------- Roadmap (opened from the header target) ---------- */
@@ -348,7 +373,7 @@ export const PEOPLE = TEAM_NAMES.map((name, i) => ({
 
 export function seedData() {
   return {
-    fieldMarketingVersion: 5,
+    fieldMarketingVersion: 6,
     companyGoal: { ...COMPANY_GOAL },
     schemaVersions: { events: 3, conferences: 4, leads: 2 },
     peopleVersion: 1,
@@ -373,7 +398,7 @@ export function seedData() {
     eventsFunnelVersion: 7,
     eventsNycFunnel: seedEventsFunnel('nyc'),
     eventsSfFunnel: seedEventsFunnel('sf'),
-    partnershipsVersion: 5,
+    partnershipsVersion: 6,
     partnerships: seedPartnerships(),
     eventsSf: withEvents(sections('sf', ['External Events', 'Internal Events'], EXTERNAL_EVENT_FIELDS), SF_EXTERNAL_EVENTS, SF_INTERNAL_EVENTS),
     pageNotes: {

@@ -1,5 +1,5 @@
 import { EXTERNAL_EVENT_FORMATS, REMOVED_INTERNAL_EVENT_IDS, HEAD_OF_CONTENT, NON_TECHNICAL } from './fieldMarketing.js';
-import { seedData, seedInspiration, buildPartnershipSections, mergeCityCompanies, addPartnerAdditions, partnershipSection, applyPartnerHQ } from './seed.js';
+import { seedData, seedInspiration, buildPartnershipSections, mergeCityCompanies, addPartnerAdditions, partnershipSection, applyPartnerHQ, applyPartnerPlacements, PARTNERSHIP_OTHERS_ID, DROPPED_SECTIONS } from './seed.js';
 
 const STORAGE_KEY = 'extendFieldMarketingData.v1';
 
@@ -152,6 +152,10 @@ function load() {
       //   partnershipsVersion 3: more companies per industry (and a new Others section), skipping names already on the page.
       //   partnershipsVersion 4: new AI section (before Dev Tools) holding OpenAI, Anthropic, Cursor (SpaceX) and Gumloop.
       //   partnershipsVersion 5: City becomes each company's headquarters where known.
+      //   partnershipsVersion 6: Insurance and Pharmaceutical sections removed (Corgi, Recursion and Novo
+      //   Nordisk move to Others with an industry label); Harvey labelled Law; Ramp also listed under
+      //   Banking; Dialogue added to Health Care; MongoDB added to Dev Tools; Finance and Banking merge
+      //   into one Finance & Banking section.
       const partnershipsVersion = stored.partnershipsVersion || 0;
       if (partnershipsVersion < fresh.partnershipsVersion) {
         let byCity = stored.partnerships;
@@ -194,6 +198,29 @@ function load() {
           }
         }
         if (partnershipsVersion < 5) applyPartnerHQ(stored.partnerships);
+        if (partnershipsVersion < 6) {
+          const sections = stored.partnerships;
+          let others = sections.find((s) => s.id === PARTNERSHIP_OTHERS_ID);
+          if (!others) { others = partnershipSection('Others'); sections.push(others); }
+          for (const [title, keepNames] of Object.entries(DROPPED_SECTIONS)) {
+            for (const dropped of sections.filter((s) => s.title === title)) {
+              for (const e of dropped.entities) {
+                if (keepNames.includes(e.name) && !others.entities.some((o) => o.name === e.name)) others.entities.push(e);
+              }
+              sections.splice(sections.indexOf(dropped), 1);
+            }
+          }
+          const finance = sections.find((s) => s.title === 'Finance');
+          if (finance) {
+            finance.title = 'Finance & Banking';
+            for (const banking of sections.filter((s) => s.title === 'Banking')) {
+              banking.entities.forEach((e) => { if (!finance.entities.some((f) => f.name === e.name)) finance.entities.push(e); });
+              sections.splice(sections.indexOf(banking), 1);
+            }
+          }
+          applyPartnerPlacements(sections);
+          applyPartnerHQ(addPartnerAdditions(sections), { onlyBlank: true });
+        }
         stored.partnershipsVersion = fresh.partnershipsVersion;
         changed = true;
       }
@@ -211,6 +238,8 @@ function load() {
       //   fieldMarketingVersion 4: events, conferences and plans for non-technical audiences are removed,
       //   and Internal Events drops the Conference format.
       //   fieldMarketingVersion 5: the events pages drop the Community Event format and its events.
+      //   fieldMarketingVersion 6: Social & Content drops the Content Owner column, and Teaser Date becomes
+      //   a window one to two weeks before each event.
       const fmVersion = stored.fieldMarketingVersion || 0;
       if (fmVersion < fresh.fieldMarketingVersion) {
         if (fmVersion < 1) upgradeToFieldMarketing(stored, fresh);
@@ -237,6 +266,17 @@ function load() {
               if (e.format === 'Community Event') e.format = '';
             }));
           }
+        }
+        if (fmVersion < 6) {
+          (stored.socialPlan || []).filter((s) => s.id === 'social-events').forEach((s) => {
+            s.fields = fresh.socialPlan[0].fields;
+            const seededTeaserDates = ['2026-10-21', '2026-11-03', '2026-11-23', ''];
+            s.entries.forEach((row) => {
+              delete row.contentOwner;
+              const teaserWindow = fresh.socialPlan[0].entries.find((f) => f.id === row.id)?.teaserDate;
+              if (teaserWindow && seededTeaserDates.includes(row.teaserDate || '')) row.teaserDate = teaserWindow;
+            });
+          });
         }
         stored.fieldMarketingVersion = fresh.fieldMarketingVersion;
         changed = true;

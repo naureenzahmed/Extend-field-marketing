@@ -1,7 +1,7 @@
 import { getData, commit } from '../store.js';
 import { uid, escapeHtml } from '../utils.js';
 import { notesBoxHtml } from '../notesBox.js';
-import { partnershipMetrics, PARTNERSHIP_UNASSIGNED_ID } from '../seed.js';
+import { partnershipMetrics, PARTNERSHIP_UNASSIGNED_ID, PARTNERSHIP_OTHERS_ID } from '../seed.js';
 import { renderTrackerSections } from './trackerShared.js';
 
 /* Partnerships: one section per industry; each company has a city and can be moved between industries. */
@@ -26,5 +26,5 @@ export function renderPartnerships(container, opts) {
   });
 
   renderTrackerSections(document.getElementById('partnership-sections'), data, data.partnerships, rerender,
-    { companyMode: true, hideWhenEmpty: PARTNERSHIP_UNASSIGNED_ID });
+    { companyMode: true, hideWhenEmpty: PARTNERSHIP_UNASSIGNED_ID, labelSections: [PARTNERSHIP_OTHERS_ID] });
 }

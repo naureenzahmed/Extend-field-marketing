@@ -5,7 +5,8 @@ import { openClubSidebar } from '../clubSidebar.js';
 /* Renders weekly-metric tracker sections into root; all event wiring is scoped to root.
    opts.groupBy = { key, groups } groups each section's company list (and lets companies be added).
    opts.companyMode: each section is a group of companies (with a city) that can be added, removed
-   or moved to another section; an empty section with id opts.hideWhenEmpty is not shown. */
+   or moved to another section; an empty section with id opts.hideWhenEmpty is not shown, and sections in
+   opts.labelSections give each company a free-text industry label. */
 export function renderTrackerSections(root, data, sections, rerender, opts = {}) {
   const visible = sections.filter((s) => !(s.id === opts.hideWhenEmpty && !s.entities?.length));
   root.innerHTML = visible.map((s) => renderSection(s, data.weeks, { ...opts, allSections: sections })).join('');
@@ -28,7 +29,7 @@ function renderSection(s, weeks, opts = {}) {
         </div>
       </div>
       ${s.note ? `<div class="section-desc">${escapeHtml(s.note)}</div>` : ''}
-      ${opts.companyMode ? companyListHtml(s, opts.allSections) : opts.groupBy && s.entities ? groupedEntitiesHtml(s, opts.groupBy) : s.entities && s.entities.length ? `
+      ${opts.companyMode ? companyListHtml(s, opts.allSections, opts.labelSections) : opts.groupBy && s.entities ? groupedEntitiesHtml(s, opts.groupBy) : s.entities && s.entities.length ? `
         <div class="entity-list">
           ${s.entities.map((e, entityIndex) => entityRowHtml(s, e, entityIndex)).join('')}
         </div>
@@ -92,11 +93,13 @@ function entityRowHtml(s, e, entityIndex, groupBy = null) {
 }
 
 /* Companies in a section, each with its city and a dropdown to move it to another section. */
-function companyListHtml(s, allSections) {
+function companyListHtml(s, allSections, labelSections = []) {
   if (!s.entities?.length) return '<div class="empty-hint" style="margin-bottom:12px;">No companies yet.</div>';
+  // Catch-all sections (e.g. Others) let each company carry its own industry label.
+  const labelled = labelSections.includes(s.id);
   return `
     <div class="entity-list">
-      <div class="entity-row entity-head"><div class="entity-name">Company Name</div><div class="entity-city">City</div><div>Industry</div></div>
+      <div class="entity-row entity-head"><div class="entity-name">Company Name</div><div class="entity-city">City</div><div class="entity-group-select">Section</div>${labelled ? '<div class="entity-city">Industry</div>' : ''}</div>
       ${s.entities.map((e, i) => `
         <div class="entity-row">
           <div class="entity-name">${escapeHtml(e.name)}</div>
@@ -104,6 +107,7 @@ function companyListHtml(s, allSections) {
           <select class="cell-input entity-group-select" data-entity-move="${s.id}|${i}">
             ${allSections.map((t) => `<option value="${t.id}" ${t.id === s.id ? 'selected' : ''}>${escapeHtml(t.title)}</option>`).join('')}
           </select>
+          ${labelled ? `<input type="text" class="cell-input entity-city" data-entity-industry="${s.id}|${i}" value="${escapeHtml(e.industryLabel || '')}" placeholder="Industry" />` : ''}
           <div class="entity-org-list">${e.links && e.links.length ? e.links.map((l) => `<button type="button" class="entity-org-box" data-open-club="${s.id}|${i}|${l.id}">${escapeHtml(l.name)}</button>`).join('') : ''}</div>
           <button class="btn btn-ghost" data-remove-entity="${s.id}|${i}" style="padding:2px 7px;">✕</button>
         </div>
@@ -178,6 +182,14 @@ function wireEvents(root, sections, rerender, opts = {}) {
     input.addEventListener('input', () => {
       const [sectionId, index] = input.dataset.entityCity.split('|');
       sections.find((s) => s.id === sectionId).entities[Number(index)].city = input.value;
+      commit();
+    });
+  });
+
+  root.querySelectorAll('[data-entity-industry]').forEach((input) => {
+    input.addEventListener('input', () => {
+      const [sectionId, index] = input.dataset.entityIndustry.split('|');
+      sections.find((s) => s.id === sectionId).entities[Number(index)].industryLabel = input.value;
       commit();
     });
   });

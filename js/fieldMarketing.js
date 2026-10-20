@@ -363,10 +363,10 @@ export const SOCIAL_FIELDS = [
   { key: 'date', label: 'Date', width: 150 },
   { key: 'channels', label: 'Channels', width: 170 },
   { key: 'teaser', label: 'Pre-Event Teaser', width: 380 },
-  { key: 'teaserDate', label: 'Teaser Date', type: 'date' },
+  // A window one to two weeks before the event.
+  { key: 'teaserDate', label: 'Teaser Date', width: 220 },
   { key: 'lumaPage', label: 'Luma Page' },
   { key: 'contentToFilm', label: 'Content to Film', width: 340 },
-  { key: 'contentOwner', label: 'Content Owner' },
   { key: 'whoPosts', label: 'Who Posts', width: 200 },
   { key: 'postLinks', label: 'Post Links' },
   { key: 'impressions', label: 'Impressions' },
@@ -375,17 +375,17 @@ export const SOCIAL_FIELDS = [
 ];
 
 function social(id, eventName, date, channels, teaser, teaserDate, contentToFilm, whoPosts) {
-  return { id, eventName, date, channels, teaser, teaserDate, lumaPage: '', contentToFilm, contentOwner: HEAD_OF_CONTENT, whoPosts, postLinks: '', impressions: '', follows: '', signupsFromPosts: '' };
+  return { id, eventName, date, channels, teaser, teaserDate, lumaPage: '', contentToFilm, whoPosts, postLinks: '', impressions: '', follows: '', signupsFromPosts: '' };
 }
 
 export const SOCIAL_PLAN = [
-  social('soc-1', 'GitHub Universe 2026', 'Oct 28–29', 'X, LinkedIn', 'Bring your messiest PDF to our booth: we parse it live in 60 seconds.', '2026-10-21',
+  social('soc-1', 'GitHub Universe 2026', 'Oct 28–29', 'X, LinkedIn', 'Bring your messiest PDF to our booth: we parse it live in 60 seconds.', 'Oct 14 – Oct 21',
     '60-second live parse clips; booth timelapse; founder dinner moments', 'Shruthi (Extend), Andrew (personal)'),
-  social('soc-2', 'AI Engineer Code Summit 2026', 'Nov 10–12', 'X, LinkedIn, YouTube', 'Talk announcement: document agents in production, plus a "drop a document" kiosk.', '2026-11-03',
+  social('soc-2', 'AI Engineer Code Summit 2026', 'Nov 10–12', 'X, LinkedIn, YouTube', 'Talk announcement: document agents in production, plus a "drop a document" kiosk.', 'Oct 27 – Nov 3',
     'Talk recording; kiosk reactions; build-session demos', 'Devin (Extend), Harvey (speaker)'),
-  social('soc-3', 'AI Dev NYC 2026', 'Nov 30 – Dec 1', 'X, LinkedIn', 'NYC builders: Extend booth + happy hour by Chelsea Piers. RSVP on Luma.', '2026-11-23',
+  social('soc-3', 'AI Dev NYC 2026', 'Nov 30 – Dec 1', 'X, LinkedIn', 'NYC builders: Extend booth + happy hour by Chelsea Piers. RSVP on Luma.', 'Nov 16 – Nov 23',
     'Booth demos; happy hour photos; one customer quote on video', 'Addison (Extend), Jing (personal)'),
-  social('soc-4', 'Raspberry Pi Night (NYC)', '', 'X, Instagram, LinkedIn', 'Three hours, forty Raspberry Pis, one hour of demos. And pie.', '',
+  social('soc-4', 'Raspberry Pi Night (NYC)', '', 'X, Instagram, LinkedIn', 'Three hours, forty Raspberry Pis, one hour of demos. And pie.', '1–2 weeks before the event',
     'Build timelapse; demo highlight reel; co-host shout-out with Betaworks', 'Sydney (Extend), co-host account'),
 ];
 
