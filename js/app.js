@@ -7,6 +7,7 @@ import { renderTableSectionsPage } from './pages/tableSections.js';
 import { renderExternalConferences } from './pages/externalConferences.js';
 import { renderRoadmap } from './pages/roadmap.js';
 import { renderPartnerships } from './pages/partnerships.js';
+import { renderExport } from './pages/exportData.js';
 
 // Events pages split every section by event format.
 const BY_FORMAT = { key: 'format', groups: EVENT_FORMATS };
@@ -32,6 +33,8 @@ const PAGES = {
   socialPlan: { label: 'Social & Content', dataKey: 'socialPlan', render: tablePage('socialPlan', 'Social & Content', SOCIAL_FIELDS, 'Add event', { showEmptyTable: true }) },
   // Not in the nav: opened by clicking the target in the header.
   roadmap: { label: 'Roadmap', hidden: true, render: renderRoadmap },
+  // Not in the nav: downloads this browser's data to become the first-visit default.
+  export: { label: 'Export', hidden: true, render: renderExport },
 };
 
 function currentRoute() {

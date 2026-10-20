@@ -1,4 +1,5 @@
 import { EXTERNAL_EVENT_FORMATS, REMOVED_INTERNAL_EVENT_IDS, HEAD_OF_CONTENT, NON_TECHNICAL } from './fieldMarketing.js';
+import { DEFAULT_DATA } from './defaultData.js';
 import { seedData, seedInspiration, buildPartnershipSections, mergeCityCompanies, addPartnerAdditions, partnershipSection, applyPartnerHQ, applyPartnerPlacements, PARTNERSHIP_OTHERS_ID, DROPPED_SECTIONS, REMOVED_PARTNERS, ESTIMATES_NOTE } from './seed.js';
 
 const STORAGE_KEY = 'extendFieldMarketingData.v1';
@@ -34,7 +35,8 @@ let data = load();
 
 function load() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    // First visit: start from the owner's exported snapshot when there is one.
+    const raw = localStorage.getItem(STORAGE_KEY) ?? (DEFAULT_DATA ? JSON.stringify(DEFAULT_DATA) : null);
     if (raw) {
       const stored = JSON.parse(raw);
       const fresh = seedData();
@@ -424,6 +426,14 @@ function upgradeToFieldMarketing(stored, fresh) {
 
 function save(d) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
+}
+
+// Keys left out of an export: private settings and internal backups.
+const NOT_EXPORTED = ['slackWebhookUrl', 'retiredMetrics', 'retiredConferences', 'partnershipsByCity'];
+
+/* Everything saved in this browser, ready to become the first-visit default. */
+export function exportData() {
+  return Object.fromEntries(Object.entries(data).filter(([key]) => !NOT_EXPORTED.includes(key)));
 }
 
 export function getData() {
