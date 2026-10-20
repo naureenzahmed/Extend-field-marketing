@@ -196,20 +196,81 @@ function seedEventsFunnel(prefix) {
   ];
 }
 
-export const PARTNERSHIP_TITLES = { nyc: 'New York Partnerships', sf: 'San Francisco Partnerships' };
+/* ---------- Partnerships page: one section per industry ---------- */
 
-/* Partnerships page: one weekly-metric section per city (moved off the events pages). */
+export const PARTNERSHIP_INDUSTRIES = [
+  'Documentation Software', 'HR Software', 'Finance', 'Banking', 'Community', 'Pharmaceutical',
+  'Cybersecurity', 'Health Care', 'Dev Tools', 'Sales Tools', 'Insurance',
+];
+
+// Industry for companies we could place; anything else starts in Unassigned.
+const PARTNER_INDUSTRY = {
+  Corgi: 'Insurance',
+  Ramp: 'Finance',
+  Brex: 'Finance',
+  Rho: 'Banking',
+  Clay: 'Sales Tools',
+  Betaworks: 'Community',
+  Discord: 'Community',
+  'Solo Founders': 'Community',
+  Vercel: 'Dev Tools',
+  PostHog: 'Dev Tools',
+  Gumloop: 'Dev Tools',
+  Mintlify: 'Documentation Software',
+  Circleback: 'Documentation Software',
+};
+
+// Industries used on the events pages that map onto a Partnerships section.
+const INDUSTRY_ALIASES = { Pharmaceuticals: 'Pharmaceutical' };
+
+export const PARTNERSHIP_UNASSIGNED_ID = 'partner-unassigned';
+
+export function partnershipMetrics() {
+  return [
+    { id: 'm1', label: 'Leads (#)', target: '40 per event', values: {} },
+    { id: 'm2', label: 'Interview Booked (%)', target: '37.5%', values: {} },
+    { id: 'm3', label: 'Interview Booked (#)', target: '15 per event', values: {} },
+  ];
+}
+
+/* Sorts companies ({ name, city, links, industry? }) into one section per industry, plus Unassigned. */
+export function buildPartnershipSections(companies) {
+  const sections = [
+    { id: PARTNERSHIP_UNASSIGNED_ID, title: 'Unassigned', entities: [], metrics: partnershipMetrics() },
+    ...PARTNERSHIP_INDUSTRIES.map((title) => ({
+      id: `partner-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`, title, entities: [], metrics: partnershipMetrics(),
+    })),
+  ];
+  for (const company of companies) {
+    const industry = INDUSTRY_ALIASES[company.industry] || company.industry || PARTNER_INDUSTRY[company.name];
+    const section = sections.find((s) => s.title === industry) || sections[0];
+    const { industry: _unused, ...entity } = company;
+    section.entities.push(entity);
+  }
+  return sections;
+}
+
+/* Merges per-city company lists ({ NYC: [...], SF: [...] }) so a company in both cities appears once. */
+export function mergeCityCompanies(byCity) {
+  const merged = [];
+  for (const [city, companies] of Object.entries(byCity)) {
+    for (const c of companies) {
+      const existing = merged.find((m) => m.name === c.name);
+      if (existing) {
+        existing.city = `${existing.city}, ${city}`;
+        existing.links = [...(existing.links || []), ...(c.links || [])];
+        existing.industry = existing.industry || c.industry;
+      } else {
+        merged.push({ ...c, city, links: c.links || [] });
+      }
+    }
+  }
+  return merged;
+}
+
 function seedPartnerships() {
-  return ['nyc', 'sf'].map((prefix) => ({
-    id: `${prefix}-partnerships`,
-    title: PARTNERSHIP_TITLES[prefix],
-    entities: PARTNERS[prefix].map((name) => ({ name, links: [] })),
-    metrics: [
-      { id: 'm1', label: 'Leads (#)', target: '40 per event', values: {} },
-      { id: 'm2', label: 'Interview Booked (%)', target: '37.5%', values: {} },
-      { id: 'm3', label: 'Interview Booked (#)', target: '15 per event', values: {} },
-    ],
-  }));
+  const toCompanies = (names) => names.map((name) => ({ name, links: [] }));
+  return buildPartnershipSections(mergeCityCompanies({ NYC: toCompanies(PARTNERS.nyc), SF: toCompanies(PARTNERS.sf) }));
 }
 
 /* ---------- Roadmap (opened from the header target) ---------- */
@@ -339,7 +400,7 @@ export function seedData() {
     eventsFunnelVersion: 7,
     eventsNycFunnel: seedEventsFunnel('nyc'),
     eventsSfFunnel: seedEventsFunnel('sf'),
-    partnershipsVersion: 1,
+    partnershipsVersion: 2,
     partnerships: seedPartnerships(),
     eventsSf: withEvents(sections('sf', ['External Events', 'Internal Events'], EVENT_FIELDS), SF_EXTERNAL_EVENTS, SF_INTERNAL_EVENTS),
     pageNotes: {

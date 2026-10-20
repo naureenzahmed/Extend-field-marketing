@@ -1,4 +1,4 @@
-import { seedData, seedInspiration, PARTNERSHIP_TITLES } from './seed.js';
+import { seedData, seedInspiration, buildPartnershipSections, mergeCityCompanies } from './seed.js';
 
 const STORAGE_KEY = 'extendFieldMarketingData.v1';
 
@@ -144,16 +144,29 @@ function load() {
         stored.industryVersion = fresh.industryVersion;
         changed = true;
       }
-      // partnershipsVersion 1: Partnership Events move from the events pages to the Partnerships page,
-      // keeping their companies and weekly numbers. Runs after the funnel upgrades above, which edit them in place.
-      if ((stored.partnershipsVersion || 0) < fresh.partnershipsVersion) {
-        stored.partnerships = ['nyc', 'sf'].map((prefix) => {
-          const key = prefix === 'nyc' ? 'eventsNycFunnel' : 'eventsSfFunnel';
-          const id = `${prefix}-partnerships`;
-          const section = stored[key]?.find((s) => s.id === id);
-          if (stored[key]) stored[key] = stored[key].filter((s) => s.id !== id);
-          return section ? { ...section, title: PARTNERSHIP_TITLES[prefix] } : fresh.partnerships.find((s) => s.id === id);
-        });
+      // Partnerships page upgrades, keeping companies (and their clubs and industries):
+      //   partnershipsVersion 1: Partnership Events move off the events pages (one section per city).
+      //   partnershipsVersion 2: sections become industries; each company keeps its city. The per-city
+      //   sections (and their weekly numbers) are kept in partnershipsByCity.
+      const partnershipsVersion = stored.partnershipsVersion || 0;
+      if (partnershipsVersion < fresh.partnershipsVersion) {
+        let byCity = stored.partnerships;
+        if (partnershipsVersion < 1) {
+          byCity = ['nyc', 'sf'].map((prefix) => {
+            const key = prefix === 'nyc' ? 'eventsNycFunnel' : 'eventsSfFunnel';
+            const section = stored[key]?.find((s) => s.id === `${prefix}-partnerships`);
+            if (stored[key]) stored[key] = stored[key].filter((s) => s !== section);
+            return section;
+          }).filter(Boolean);
+        }
+        if (partnershipsVersion < 2) {
+          const cityOf = (id) => (id.startsWith('nyc') ? 'NYC' : 'SF');
+          const companies = mergeCityCompanies(Object.fromEntries(
+            (byCity || []).map((s) => [cityOf(s.id), s.entities || []]),
+          ));
+          stored.partnershipsByCity = byCity;
+          stored.partnerships = companies.length ? buildPartnershipSections(companies) : fresh.partnerships;
+        }
         stored.partnershipsVersion = fresh.partnershipsVersion;
         changed = true;
       }

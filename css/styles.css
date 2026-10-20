@@ -575,3 +575,5 @@ a.doc-social:hover { color: var(--text); }
 .entity-head { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-faint); font-weight: 600; }
 .entity-head .entity-name { font-weight: 600; }
 .entity-group-select { flex: 0 0 150px; }
+.entity-city { flex: 0 0 110px; }
+input.entity-city { width: 110px; }

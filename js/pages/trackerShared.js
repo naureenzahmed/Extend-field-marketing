@@ -3,9 +3,12 @@ import { uid, escapeHtml } from '../utils.js';
 import { openClubSidebar } from '../clubSidebar.js';
 
 /* Renders weekly-metric tracker sections into root; all event wiring is scoped to root.
-   opts.groupBy = { key, groups } groups each section's company list (and lets companies be added). */
+   opts.groupBy = { key, groups } groups each section's company list (and lets companies be added).
+   opts.companyMode: each section is a group of companies (with a city) that can be added, removed
+   or moved to another section; an empty section with id opts.hideWhenEmpty is not shown. */
 export function renderTrackerSections(root, data, sections, rerender, opts = {}) {
-  root.innerHTML = sections.map((s) => renderSection(s, data.weeks, opts)).join('');
+  const visible = sections.filter((s) => !(s.id === opts.hideWhenEmpty && !s.entities?.length));
+  root.innerHTML = visible.map((s) => renderSection(s, data.weeks, { ...opts, allSections: sections })).join('');
   wireEvents(root, sections, rerender, opts);
 }
 
@@ -19,12 +22,13 @@ function renderSection(s, weeks, opts = {}) {
       <div class="toolbar" style="margin-bottom:6px;">
         <h4 style="margin:0;">${escapeHtml(s.title)}</h4>
         <div style="display:flex; gap:6px;">
+          ${opts.companyMode ? `<button class="btn btn-ghost" data-add-entity="${s.id}" style="padding:4px 8px;">+ Add company</button>` : ''}
           <button class="btn btn-ghost" data-add-metric="${s.id}" style="padding:4px 8px;">+ Add metric</button>
           <button class="btn btn-ghost btn-danger" data-remove-section="${s.id}" style="padding:4px 8px;">Remove section</button>
         </div>
       </div>
       ${s.note ? `<div class="section-desc">${escapeHtml(s.note)}</div>` : ''}
-      ${opts.groupBy && s.entities ? groupedEntitiesHtml(s, opts.groupBy) : s.entities && s.entities.length ? `
+      ${opts.companyMode ? companyListHtml(s, opts.allSections) : opts.groupBy && s.entities ? groupedEntitiesHtml(s, opts.groupBy) : s.entities && s.entities.length ? `
         <div class="entity-list">
           ${s.entities.map((e, entityIndex) => entityRowHtml(s, e, entityIndex)).join('')}
         </div>
@@ -87,6 +91,27 @@ function entityRowHtml(s, e, entityIndex, groupBy = null) {
   `;
 }
 
+/* Companies in a section, each with its city and a dropdown to move it to another section. */
+function companyListHtml(s, allSections) {
+  if (!s.entities?.length) return '<div class="empty-hint" style="margin-bottom:12px;">No companies yet.</div>';
+  return `
+    <div class="entity-list">
+      <div class="entity-row entity-head"><div class="entity-name">Company Name</div><div class="entity-city">City</div><div>Industry</div></div>
+      ${s.entities.map((e, i) => `
+        <div class="entity-row">
+          <div class="entity-name">${escapeHtml(e.name)}</div>
+          <input type="text" class="cell-input entity-city" data-entity-city="${s.id}|${i}" value="${escapeHtml(e.city || '')}" placeholder="NYC / SF" />
+          <select class="cell-input entity-group-select" data-entity-move="${s.id}|${i}">
+            ${allSections.map((t) => `<option value="${t.id}" ${t.id === s.id ? 'selected' : ''}>${escapeHtml(t.title)}</option>`).join('')}
+          </select>
+          <div class="entity-org-list">${e.links && e.links.length ? e.links.map((l) => `<button type="button" class="entity-org-box" data-open-club="${s.id}|${i}|${l.id}">${escapeHtml(l.name)}</button>`).join('') : ''}</div>
+          <button class="btn btn-ghost" data-remove-entity="${s.id}|${i}" style="padding:2px 7px;">✕</button>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
 /* Company list split into groups (e.g. industries); companies outside the groups show as Unassigned. */
 function groupedEntitiesHtml(s, groupBy) {
   const indexed = s.entities.map((e, i) => ({ e, i }));
@@ -131,8 +156,10 @@ function wireEvents(root, sections, rerender, opts = {}) {
       const name = prompt('Company name');
       if (!name || !name.trim()) return;
       const section = sections.find((s) => s.id === btn.dataset.addEntity);
-      const group = btn.dataset.group === 'Unassigned' ? '' : btn.dataset.group;
-      section.entities.push({ name: name.trim(), links: [], [groupKey]: group });
+      const entity = { name: name.trim(), links: [] };
+      if (groupKey) entity[groupKey] = btn.dataset.group === 'Unassigned' ? '' : btn.dataset.group;
+      section.entities = section.entities || [];
+      section.entities.push(entity);
       commit();
       rerender();
     });
@@ -142,6 +169,26 @@ function wireEvents(root, sections, rerender, opts = {}) {
     select.addEventListener('change', () => {
       const [sectionId, index] = select.dataset.entityGroup.split('|');
       sections.find((s) => s.id === sectionId).entities[Number(index)][groupKey] = select.value;
+      commit();
+      rerender();
+    });
+  });
+
+  root.querySelectorAll('[data-entity-city]').forEach((input) => {
+    input.addEventListener('input', () => {
+      const [sectionId, index] = input.dataset.entityCity.split('|');
+      sections.find((s) => s.id === sectionId).entities[Number(index)].city = input.value;
+      commit();
+    });
+  });
+
+  root.querySelectorAll('[data-entity-move]').forEach((select) => {
+    select.addEventListener('change', () => {
+      const [sectionId, index] = select.dataset.entityMove.split('|');
+      const [entity] = sections.find((s) => s.id === sectionId).entities.splice(Number(index), 1);
+      const target = sections.find((s) => s.id === select.value);
+      target.entities = target.entities || [];
+      target.entities.push(entity);
       commit();
       rerender();
     });

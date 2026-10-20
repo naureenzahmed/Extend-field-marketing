@@ -19,7 +19,7 @@ const PAGES = {
   externalConferences: { label: 'External Conferences', dataKey: 'externalConferences', render: renderExternalConferences },
   eventsNyc: { label: 'Events NYC', dataKey: 'eventsNyc', extraDataKey: 'eventsNycFunnel', render: tablePage('eventsNyc', 'Events NYC', EVENT_FIELDS, 'Add event', { showEmptyTable: true, trackerKey: 'eventsNycFunnel', groupBy: BY_INDUSTRY }) },
   eventsSf: { label: 'Events SF', dataKey: 'eventsSf', extraDataKey: 'eventsSfFunnel', render: tablePage('eventsSf', 'Events SF', EVENT_FIELDS, 'Add event', { showEmptyTable: true, trackerKey: 'eventsSfFunnel', groupBy: BY_INDUSTRY }) },
-  partnerships: { label: 'Partnerships', dataKey: 'partnerships', render: (c) => renderPartnerships(c, { title: 'Partnerships', groupBy: BY_INDUSTRY }) },
+  partnerships: { label: 'Partnerships', dataKey: 'partnerships', render: (c) => renderPartnerships(c, { title: 'Partnerships' }) },
   // Not in the nav: opened by clicking the target in the header.
   roadmap: { label: 'Roadmap', hidden: true, render: renderRoadmap },
 };

@@ -1,16 +1,30 @@
-import { getData } from '../store.js';
-import { escapeHtml } from '../utils.js';
+import { getData, commit } from '../store.js';
+import { uid, escapeHtml } from '../utils.js';
 import { notesBoxHtml } from '../notesBox.js';
+import { partnershipMetrics, PARTNERSHIP_UNASSIGNED_ID } from '../seed.js';
 import { renderTrackerSections } from './trackerShared.js';
 
-/* Partnerships: weekly-metric sections (one per city) with companies grouped by opts.groupBy. */
+/* Partnerships: one section per industry; each company has a city and can be moved between industries. */
 export function renderPartnerships(container, opts) {
   const data = getData();
+  const rerender = () => renderPartnerships(container, opts);
   container.innerHTML = `
     ${notesBoxHtml('partnerships')}
-    <div class="page-title">${escapeHtml(opts.title)}</div>
+    <div class="toolbar">
+      <div class="page-title" style="margin:0;">${escapeHtml(opts.title)}</div>
+      <button class="btn btn-primary" id="add-industry-btn">+ Industry</button>
+    </div>
     <div class="stack-16" id="partnership-sections"></div>
   `;
-  renderTrackerSections(document.getElementById('partnership-sections'), data, data.partnerships,
-    () => renderPartnerships(container, opts), opts);
+
+  document.getElementById('add-industry-btn').addEventListener('click', () => {
+    const title = prompt('Industry name');
+    if (!title || !title.trim()) return;
+    data.partnerships.push({ id: uid('partner'), title: title.trim(), entities: [], metrics: partnershipMetrics() });
+    commit();
+    rerender();
+  });
+
+  renderTrackerSections(document.getElementById('partnership-sections'), data, data.partnerships, rerender,
+    { companyMode: true, hideWhenEmpty: PARTNERSHIP_UNASSIGNED_ID });
 }
