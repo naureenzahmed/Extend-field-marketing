@@ -4,7 +4,7 @@
 
 /* ---------- Events pages ---------- */
 
-export const EVENT_FORMATS = ['Conference', 'Demo Day', 'Founder Dinner', 'Meetup / Talk', 'Hackathon / Build Night', 'Community Event'];
+export const EVENT_FORMATS = ['Conference', 'Demo Day', 'Founder Dinner', 'Meetup / Talk', 'Hackathon / Build Night'];
 
 const FORMAT_FIELD = { key: 'format', label: 'Format', type: 'select', options: ['', ...EVENT_FORMATS] };
 // Extend's own events are never conferences, so Internal Events has no Conference format (or group).

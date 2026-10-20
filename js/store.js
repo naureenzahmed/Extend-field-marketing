@@ -210,6 +210,7 @@ function load() {
       //   fieldMarketingVersion 3: follow-up steps on the conference page have no owner names.
       //   fieldMarketingVersion 4: events, conferences and plans for non-technical audiences are removed,
       //   and Internal Events drops the Conference format.
+      //   fieldMarketingVersion 5: the events pages drop the Community Event format and its events.
       const fmVersion = stored.fieldMarketingVersion || 0;
       if (fmVersion < fresh.fieldMarketingVersion) {
         if (fmVersion < 1) upgradeToFieldMarketing(stored, fresh);
@@ -223,6 +224,18 @@ function load() {
           removeNonTechnical(stored);
           for (const key of ['eventsNyc', 'eventsSf']) {
             (stored[key] || []).filter((s) => s.id.endsWith('-internal-events')).forEach((s) => { s.fields = fresh[key][1].fields; });
+          }
+        }
+        if (fmVersion < 5) {
+          for (const key of ['eventsNyc', 'eventsSf']) {
+            (stored[key] || []).forEach((s) => {
+              s.fields = s.id.endsWith('-internal-events') ? fresh[key][1].fields : fresh[key][0].fields;
+              s.entries = s.entries.filter((e) => e.format !== 'Community Event');
+            });
+            // Event Attendance companies tagged Community Event go back to Unassigned.
+            (stored[`${key}Funnel`] || []).forEach((s) => (s.entities || []).forEach((e) => {
+              if (e.format === 'Community Event') e.format = '';
+            }));
           }
         }
         stored.fieldMarketingVersion = fresh.fieldMarketingVersion;
