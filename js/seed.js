@@ -1,5 +1,5 @@
 import { addDays, todayISO, uid } from './utils.js';
-import { NYC_EXTERNAL_EVENTS, SF_EXTERNAL_EVENTS, SF_INTERNAL_EVENTS } from './eventImports.js';
+import { NYC_EXTERNAL_EVENTS, NYC_INTERNAL_EVENTS, SF_EXTERNAL_EVENTS, SF_INTERNAL_EVENTS } from './eventImports.js';
 
 // Same columns as the ElevenLabs Inbound Leads table, with "User Name" as "Lead Name".
 const YES_NO_OPTIONS = ['', 'Yes', 'No'];
@@ -76,8 +76,11 @@ export const CANDIDATE_FIELDS = [
   { key: 'interactions', label: 'Interactions with Extend' },
 ];
 
+export const INDUSTRIES = ['Cybersecurity', 'Finance', 'Pharmaceuticals', 'Real Estate', 'Health Care'];
+
 export const EVENT_FIELDS = [
   { key: 'eventName', label: 'Event Name', width: 260 },
+  { key: 'companyName', label: 'Company Name', width: 180 },
   // Text, not a date picker: imported dates include ranges like "Oct 13–15".
   { key: 'date', label: 'Date', width: 200 },
   { key: 'lumaLink', label: 'Link to Luma' },
@@ -85,6 +88,7 @@ export const EVENT_FIELDS = [
   { key: 'currentAttendees', label: 'Current Number of Attendees' },
   { key: 'targetAudience', label: 'Target Audience', width: 420 },
   { key: 'checklistLink', label: 'Event Checklist Link' },
+  { key: 'industry', label: 'Industry', type: 'select', options: ['', ...INDUSTRIES] },
 ];
 
 function sections(prefix, titles, fields) {
@@ -347,8 +351,9 @@ export function seedData() {
     titlesVersion: 1,
     leadLists: renameSection(sections('leads', ['Conference Attendee Lists', 'Event RSVPs', 'Target Accounts'], LEAD_FIELDS), 'leads-target-accounts', 'Target Accounts with Interaction'),
     externalConferences: [newConference('conf-1', 'Conference Name')],
-    eventsImportVersion: 2,
-    eventsNyc: withEvents(sections('nyc', ['External Events', 'Internal Events'], EVENT_FIELDS), NYC_EXTERNAL_EVENTS),
+    eventsImportVersion: 3,
+    industryVersion: 1,
+    eventsNyc: withEvents(sections('nyc', ['External Events', 'Internal Events'], EVENT_FIELDS), NYC_EXTERNAL_EVENTS, NYC_INTERNAL_EVENTS),
     eventsFunnelVersion: 7,
     eventsNycFunnel: seedEventsFunnel('nyc'),
     eventsSfFunnel: seedEventsFunnel('sf'),

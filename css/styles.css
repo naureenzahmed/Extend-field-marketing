@@ -566,3 +566,12 @@ a.header-goal { color: inherit; text-decoration: none; }
 .doc-social svg { width: 16px; height: 16px; }
 a.doc-social:hover { color: var(--text); }
 .doc-social.empty { opacity: 0.3; }
+
+/* Sub-groups inside a section (e.g. industries on the events pages) */
+.subgroup + .subgroup { margin-top: 14px; }
+.subgroup-head { display: flex; align-items: center; justify-content: space-between; margin: 6px 0 4px; }
+.subgroup-head h5 { margin: 0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.subgroup-head h5 span { font-weight: 600; color: var(--text-faint); margin-left: 4px; }
+.entity-head { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-faint); font-weight: 600; }
+.entity-head .entity-name { font-weight: 600; }
+.entity-group-select { flex: 0 0 150px; }

@@ -93,6 +93,7 @@ function load() {
       // Add imported events to saved data once, skipping any already listed by name.
       //   eventsImportVersion 1: Date becomes a text column; External Events (NYC, SF) from the SF/NYC spreadsheet.
       //   eventsImportVersion 2: SF Internal Events ideas.
+      //   eventsImportVersion 3: NYC Internal Events ideas, plus two more for SF.
       const importVersion = stored.eventsImportVersion || 0;
       if (importVersion < fresh.eventsImportVersion) {
         const addMissing = (key, index) => {
@@ -110,6 +111,7 @@ function load() {
           }
         }
         if (importVersion < 2) addMissing('eventsSf', 1);
+        if (importVersion < 3) { addMissing('eventsNyc', 1); addMissing('eventsSf', 1); }
         stored.eventsImportVersion = fresh.eventsImportVersion;
         changed = true;
       }
@@ -119,6 +121,14 @@ function load() {
         const section = stored.leadLists?.find((s) => s.id === 'leads-target-accounts');
         if (section?.title === 'Target Accounts') section.title = 'Target Accounts with Interaction';
         stored.titlesVersion = fresh.titlesVersion;
+        changed = true;
+      }
+      // industryVersion 1: events tables gain Company Name and Industry columns.
+      if ((stored.industryVersion || 0) < fresh.industryVersion) {
+        for (const key of ['eventsNyc', 'eventsSf']) {
+          stored[key].forEach((section) => { section.fields = fresh[key][0].fields; });
+        }
+        stored.industryVersion = fresh.industryVersion;
         changed = true;
       }
       // Backfill any keys added to the seed after this data was first saved.

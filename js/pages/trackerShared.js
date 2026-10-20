@@ -45,13 +45,14 @@ export function renderTrackerPage(container, data, key, opts) {
   sectionInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') confirmAddSection(); });
 }
 
-/* Renders weekly-metric tracker sections into root; all event wiring is scoped to root. */
-export function renderTrackerSections(root, data, sections, rerender) {
-  root.innerHTML = sections.map((s) => renderSection(s, data.weeks)).join('');
-  wireEvents(root, sections, rerender);
+/* Renders weekly-metric tracker sections into root; all event wiring is scoped to root.
+   opts.groupBy = { key, groups } groups each section's company list (and lets companies be added). */
+export function renderTrackerSections(root, data, sections, rerender, opts = {}) {
+  root.innerHTML = sections.map((s) => renderSection(s, data.weeks, opts)).join('');
+  wireEvents(root, sections, rerender, opts);
 }
 
-function renderSection(s, weeks) {
+function renderSection(s, weeks, opts = {}) {
   if (s.isIntro) {
     return `<div class="card page-intro">${(Array.isArray(s.note) ? s.note : [s.note]).map((p) => `<p style="margin:0 0 8px;">${escapeHtml(p)}</p>`).join('')}</div>`;
   }
@@ -66,17 +67,9 @@ function renderSection(s, weeks) {
         </div>
       </div>
       ${s.note ? `<div class="section-desc">${escapeHtml(s.note)}</div>` : ''}
-      ${s.entities && s.entities.length ? `
+      ${opts.groupBy && s.entities ? groupedEntitiesHtml(s, opts.groupBy) : s.entities && s.entities.length ? `
         <div class="entity-list">
-          ${s.entities.map((e, entityIndex) => `
-            <div class="entity-row">
-              <div class="entity-name">${escapeHtml(e.name)}</div>
-              ${e.note
-                ? `<div class="entity-note">${escapeHtml(e.note)}</div>`
-                : `<div class="entity-org-list">${e.links && e.links.length ? e.links.map((l) => `<button type="button" class="entity-org-box" data-open-club="${s.id}|${entityIndex}|${l.id}">${escapeHtml(l.name)}</button>`).join('') : '<span class="entity-org-empty">—</span>'}</div>`
-              }
-            </div>
-          `).join('')}
+          ${s.entities.map((e, entityIndex) => entityRowHtml(s, e, entityIndex)).join('')}
         </div>
       ` : ''}
       ${s.metrics && s.metrics.length ? `
@@ -119,6 +112,50 @@ function renderSection(s, weeks) {
   `;
 }
 
+function entityRowHtml(s, e, entityIndex, groupBy = null) {
+  return `
+    <div class="entity-row">
+      <div class="entity-name">${escapeHtml(e.name)}</div>
+      ${groupBy ? `
+        <select class="cell-input entity-group-select" data-entity-group="${s.id}|${entityIndex}">
+          ${['', ...groupBy.groups].map((g) => `<option value="${escapeHtml(g)}" ${g === (e[groupBy.key] || '') ? 'selected' : ''}>${g ? escapeHtml(g) : 'Unassigned'}</option>`).join('')}
+        </select>
+      ` : ''}
+      ${e.note
+        ? `<div class="entity-note">${escapeHtml(e.note)}</div>`
+        : `<div class="entity-org-list">${e.links && e.links.length ? e.links.map((l) => `<button type="button" class="entity-org-box" data-open-club="${s.id}|${entityIndex}|${l.id}">${escapeHtml(l.name)}</button>`).join('') : '<span class="entity-org-empty">—</span>'}</div>`
+      }
+      ${groupBy ? `<button class="btn btn-ghost" data-remove-entity="${s.id}|${entityIndex}" style="padding:2px 7px;">✕</button>` : ''}
+    </div>
+  `;
+}
+
+/* Company list split into groups (e.g. industries); companies outside the groups show as Unassigned. */
+function groupedEntitiesHtml(s, groupBy) {
+  const indexed = s.entities.map((e, i) => ({ e, i }));
+  const unassigned = indexed.filter(({ e }) => !groupBy.groups.includes(e[groupBy.key]));
+  const parts = [
+    ...(unassigned.length ? [{ name: 'Unassigned', items: unassigned }] : []),
+    ...groupBy.groups.map((g) => ({ name: g, items: indexed.filter(({ e }) => e[groupBy.key] === g) })),
+  ];
+  return `
+    <div class="entity-list">
+      <div class="entity-row entity-head"><div class="entity-name">Company Name</div><div>Industry</div></div>
+      ${parts.map((part) => `
+        <div class="subgroup">
+          <div class="subgroup-head">
+            <h5>${escapeHtml(part.name)} <span>${part.items.length}</span></h5>
+            <button class="btn btn-ghost" data-add-entity="${s.id}" data-group="${escapeHtml(part.name)}" style="padding:3px 8px;">+ Add company</button>
+          </div>
+          ${part.items.length
+            ? part.items.map(({ e, i }) => entityRowHtml(s, e, i, groupBy)).join('')
+            : '<div class="empty-hint">No companies yet.</div>'}
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
 function renderMeetingsSummary(s) {
   const metric = s.metrics?.find((m) => /meeting(s)?\s*booked/i.test(m.label) && !/%/.test(m.label));
   if (!metric) return '';
@@ -129,7 +166,39 @@ function renderMeetingsSummary(s) {
   return `<div class="tracker-summary">Meetings booked <b>${total}</b></div>`;
 }
 
-function wireEvents(root, sections, rerender) {
+function wireEvents(root, sections, rerender, opts = {}) {
+  const groupKey = opts.groupBy?.key;
+
+  root.querySelectorAll('[data-add-entity]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const name = prompt('Company name');
+      if (!name || !name.trim()) return;
+      const section = sections.find((s) => s.id === btn.dataset.addEntity);
+      const group = btn.dataset.group === 'Unassigned' ? '' : btn.dataset.group;
+      section.entities.push({ name: name.trim(), links: [], [groupKey]: group });
+      commit();
+      rerender();
+    });
+  });
+
+  root.querySelectorAll('[data-entity-group]').forEach((select) => {
+    select.addEventListener('change', () => {
+      const [sectionId, index] = select.dataset.entityGroup.split('|');
+      sections.find((s) => s.id === sectionId).entities[Number(index)][groupKey] = select.value;
+      commit();
+      rerender();
+    });
+  });
+
+  root.querySelectorAll('[data-remove-entity]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const [sectionId, index] = btn.dataset.removeEntity.split('|');
+      sections.find((s) => s.id === sectionId).entities.splice(Number(index), 1);
+      commit();
+      rerender();
+    });
+  });
+
   root.querySelectorAll('[data-open-club]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const [sectionId, entityIndex, linkId] = btn.dataset.openClub.split('|');
