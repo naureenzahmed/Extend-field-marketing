@@ -256,6 +256,87 @@ export function addPartnerAdditions(sections) {
   return sections;
 }
 
+// Headquarters city per company (from public company profiles, Oct 2026). Companies not listed keep their city.
+const SF = 'San Francisco, CA';
+const NYC = 'New York, NY';
+export const PARTNER_HQ = {
+  'General Intelligence Company of New York': NYC,
+  'Rentahuman AI': SF,
+  Circleback: SF,
+  Mintlify: SF,
+  Notion: SF,
+  'Atlassian (Confluence)': 'Sydney, Australia',
+  'Grammarly / Superhuman (owns Coda)': SF,
+  Rippling: SF,
+  Deel: SF,
+  Gusto: SF,
+  Lattice: SF,
+  Ashby: SF,
+  Ramp: NYC,
+  Brex: SF,
+  Stripe: 'South San Francisco, CA and Dublin, Ireland',
+  Plaid: SF,
+  Mercury: SF,
+  Rho: NYC,
+  Revolut: 'London, UK',
+  Nubank: 'São Paulo, Brazil',
+  Monzo: 'London, UK',
+  Chime: SF,
+  Wise: 'London, UK',
+  'JPMorgan Chase (kept for its large AI investment)': NYC,
+  Betaworks: NYC,
+  Discord: SF,
+  Reddit: SF,
+  Circle: NYC,
+  Skool: 'Los Angeles, CA',
+  'Isomorphic Labs (from Google DeepMind)': 'London, UK',
+  Recursion: 'Salt Lake City, UT',
+  Insitro: 'South San Francisco, CA',
+  'Xaira Therapeutics': 'South San Francisco, CA',
+  'Novo Nordisk': 'Bagsværd, Denmark',
+  'Wiz (being acquired by Google)': NYC,
+  CrowdStrike: 'Austin, TX',
+  Cloudflare: SF,
+  Vanta: SF,
+  '1Password': 'Toronto, Canada',
+  Snyk: 'Boston, MA',
+  Abridge: 'Pittsburgh, PA',
+  'Hippocratic AI': 'Palo Alto, CA',
+  'Tempus AI': 'Chicago, IL',
+  'Oscar Health': NYC,
+  'Hinge Health': SF,
+  Gumloop: SF,
+  OpenAI: SF,
+  Anthropic: SF,
+  'Cursor (SpaceX)': SF,
+  Vercel: SF,
+  PostHog: SF,
+  Supabase: SF,
+  Linear: SF,
+  Replit: 'Foster City, CA',
+  Retool: SF,
+  Clay: NYC,
+  Gong: SF,
+  'Apollo.io': SF,
+  Attio: 'London, UK',
+  HubSpot: 'Cambridge, MA',
+  Corgi: SF,
+  Lemonade: NYC,
+  Coalition: SF,
+  Vouch: SF,
+  Root: 'Columbus, OH',
+  'Next Insurance': 'Palo Alto, CA',
+  Harvey: SF,
+};
+
+/* Sets each known company's city to its headquarters. */
+export function applyPartnerHQ(sections) {
+  for (const section of sections) {
+    for (const e of section.entities || []) if (PARTNER_HQ[e.name]) e.city = PARTNER_HQ[e.name];
+  }
+  return sections;
+}
+
 export const PARTNERSHIP_UNASSIGNED_ID = 'partner-unassigned';
 
 export function partnershipMetrics() {
@@ -305,7 +386,7 @@ export function mergeCityCompanies(byCity) {
 
 function seedPartnerships() {
   const toCompanies = (names) => names.map((name) => ({ name, links: [] }));
-  return addPartnerAdditions(buildPartnershipSections(mergeCityCompanies({ NYC: toCompanies(PARTNERS.nyc), SF: toCompanies(PARTNERS.sf) })));
+  return applyPartnerHQ(addPartnerAdditions(buildPartnershipSections(mergeCityCompanies({ NYC: toCompanies(PARTNERS.nyc), SF: toCompanies(PARTNERS.sf) }))));
 }
 
 /* ---------- Roadmap (opened from the header target) ---------- */
@@ -435,7 +516,7 @@ export function seedData() {
     eventsFunnelVersion: 7,
     eventsNycFunnel: seedEventsFunnel('nyc'),
     eventsSfFunnel: seedEventsFunnel('sf'),
-    partnershipsVersion: 4,
+    partnershipsVersion: 5,
     partnerships: seedPartnerships(),
     eventsSf: withEvents(sections('sf', ['External Events', 'Internal Events'], EVENT_FIELDS), SF_EXTERNAL_EVENTS, SF_INTERNAL_EVENTS),
     pageNotes: {

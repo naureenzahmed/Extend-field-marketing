@@ -1,4 +1,4 @@
-import { seedData, seedInspiration, buildPartnershipSections, mergeCityCompanies, addPartnerAdditions, partnershipSection } from './seed.js';
+import { seedData, seedInspiration, buildPartnershipSections, mergeCityCompanies, addPartnerAdditions, partnershipSection, applyPartnerHQ } from './seed.js';
 
 const STORAGE_KEY = 'extendFieldMarketingData.v1';
 
@@ -150,6 +150,7 @@ function load() {
       //   sections (and their weekly numbers) are kept in partnershipsByCity.
       //   partnershipsVersion 3: more companies per industry (and a new Others section), skipping names already on the page.
       //   partnershipsVersion 4: new AI section (before Dev Tools) holding OpenAI, Anthropic, Cursor (SpaceX) and Gumloop.
+      //   partnershipsVersion 5: City becomes each company's headquarters where known.
       const partnershipsVersion = stored.partnershipsVersion || 0;
       if (partnershipsVersion < fresh.partnershipsVersion) {
         let byCity = stored.partnerships;
@@ -191,6 +192,7 @@ function load() {
             }
           }
         }
+        if (partnershipsVersion < 5) applyPartnerHQ(stored.partnerships);
         stored.partnershipsVersion = fresh.partnershipsVersion;
         changed = true;
       }

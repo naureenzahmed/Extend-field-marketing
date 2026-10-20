@@ -100,7 +100,7 @@ function companyListHtml(s, allSections) {
       ${s.entities.map((e, i) => `
         <div class="entity-row">
           <div class="entity-name">${escapeHtml(e.name)}</div>
-          <input type="text" class="cell-input entity-city" data-entity-city="${s.id}|${i}" value="${escapeHtml(e.city || '')}" placeholder="NYC / SF" />
+          <input type="text" class="cell-input entity-city" data-entity-city="${s.id}|${i}" value="${escapeHtml(e.city || '')}" title="${escapeHtml(e.city || '')}" placeholder="Headquarters city" />
           <select class="cell-input entity-group-select" data-entity-move="${s.id}|${i}">
             ${allSections.map((t) => `<option value="${t.id}" ${t.id === s.id ? 'selected' : ''}>${escapeHtml(t.title)}</option>`).join('')}
           </select>
