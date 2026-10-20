@@ -1,49 +1,6 @@
 import { commit } from '../store.js';
 import { uid, escapeHtml } from '../utils.js';
 import { openClubSidebar } from '../clubSidebar.js';
-import { notesBoxHtml } from '../notesBox.js';
-
-export function renderTrackerPage(container, data, key, opts) {
-  const sections = data[key];
-
-  container.innerHTML = `
-    ${notesBoxHtml(key)}
-    <div class="toolbar">
-      <div class="page-title" style="margin:0;">${escapeHtml(opts.title)}</div>
-      <button class="btn btn-primary" id="add-section-btn">+ Section</button>
-    </div>
-    <div class="inline-add-form" id="add-section-form" style="display:none;">
-      <input type="text" id="add-section-input" placeholder="Section title" />
-      <button class="btn btn-primary" id="add-section-confirm">Add</button>
-      <button class="btn btn-ghost" id="add-section-cancel">Cancel</button>
-    </div>
-    <div id="tracker-sections" class="stack-16"></div>
-  `;
-
-  const rerender = () => renderTrackerPage(container, data, key, opts);
-  renderTrackerSections(document.getElementById('tracker-sections'), data, sections, rerender);
-
-  const sectionForm = document.getElementById('add-section-form');
-  const sectionInput = document.getElementById('add-section-input');
-
-  document.getElementById('add-section-btn').addEventListener('click', () => {
-    sectionForm.style.display = sectionForm.style.display === 'none' ? 'flex' : 'none';
-    if (sectionForm.style.display === 'flex') sectionInput.focus();
-  });
-  document.getElementById('add-section-cancel').addEventListener('click', () => {
-    sectionForm.style.display = 'none';
-    sectionInput.value = '';
-  });
-  const confirmAddSection = () => {
-    const title = sectionInput.value.trim();
-    if (!title) return;
-    sections.push({ id: uid('sec'), title, metrics: [] });
-    commit();
-    rerender();
-  };
-  document.getElementById('add-section-confirm').addEventListener('click', confirmAddSection);
-  sectionInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') confirmAddSection(); });
-}
 
 /* Renders weekly-metric tracker sections into root; all event wiring is scoped to root.
    opts.groupBy = { key, groups } groups each section's company list (and lets companies be added). */

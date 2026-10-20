@@ -68,14 +68,6 @@ export function newConference(id, title) {
   };
 }
 
-export const CANDIDATE_FIELDS = [
-  { key: 'name', label: 'Name' },
-  { key: 'idealRole', label: 'Ideal Role' },
-  { key: 'currentCompany', label: 'Current Company' },
-  { key: 'linkedin', label: 'Link to LinkedIn' },
-  { key: 'interactions', label: 'Interactions with Extend' },
-];
-
 export const INDUSTRIES = ['Cybersecurity', 'Finance', 'Pharmaceuticals', 'Real Estate', 'Health Care'];
 
 export const EVENT_FIELDS = [
@@ -156,7 +148,7 @@ function seedDocs() {
   ];
 }
 
-/* ---------- Recruitment Funnel (copied from the ElevenLabs Recruitment page) ---------- */
+/* ---------- Weeks for the weekly-metric sections on the events pages ---------- */
 
 function seedWeeks() {
   const today = new Date();
@@ -177,27 +169,13 @@ function seedWeeks() {
   return weeks;
 }
 
-function seedRecruitmentFunnel() {
-  return [
-    {
-      id: 'rec-total',
-      title: 'Total',
-      metrics: [
-        { id: 'm1', label: 'Leads (#)', target: null, values: {} },
-        { id: 'm2', label: 'Interview Booked (%)', target: null, values: {} },
-        { id: 'm3', label: 'Interview Booked (#)', target: null, values: {} },
-      ],
-    },
-  ];
-}
-
 /* Partnership Events companies per city. */
 const PARTNERS = {
   nyc: ['Corgi', 'Verci', 'General Intelligence Company of New York', 'Anti Roch', 'Ramp', 'Clay', 'Brex', 'Betaworks', 'Rho'],
   sf: ['Corgi', 'Circleback', 'Gumloop', 'Mintlify', 'Vercel', 'Discord', 'Rentahuman AI', 'PostHog', 'Solo Founders'],
 };
 
-/* Event Attendance and Partnership Events, moved from the Recruitment Funnel; NYC and SF each get their own copy. */
+/* Event Attendance (weekly metrics); NYC and SF each get their own copy. */
 function seedEventsFunnel(prefix) {
   return [
     {
@@ -215,17 +193,23 @@ function seedEventsFunnel(prefix) {
         { id: 'm3', label: 'Interview Booked (#)', target: 20, values: {} },
       ],
     },
-    {
-      id: `${prefix}-partnerships`,
-      title: 'Partnership Events',
-      entities: PARTNERS[prefix].map((name) => ({ name, links: [] })),
-      metrics: [
-        { id: 'm1', label: 'Leads (#)', target: '40 per event', values: {} },
-        { id: 'm2', label: 'Interview Booked (%)', target: '37.5%', values: {} },
-        { id: 'm3', label: 'Interview Booked (#)', target: '15 per event', values: {} },
-      ],
-    },
   ];
+}
+
+export const PARTNERSHIP_TITLES = { nyc: 'New York Partnerships', sf: 'San Francisco Partnerships' };
+
+/* Partnerships page: one weekly-metric section per city (moved off the events pages). */
+function seedPartnerships() {
+  return ['nyc', 'sf'].map((prefix) => ({
+    id: `${prefix}-partnerships`,
+    title: PARTNERSHIP_TITLES[prefix],
+    entities: PARTNERS[prefix].map((name) => ({ name, links: [] })),
+    metrics: [
+      { id: 'm1', label: 'Leads (#)', target: '40 per event', values: {} },
+      { id: 'm2', label: 'Interview Booked (%)', target: '37.5%', values: {} },
+      { id: 'm3', label: 'Interview Booked (#)', target: '15 per event', values: {} },
+    ],
+  }));
 }
 
 /* ---------- Roadmap (opened from the header target) ---------- */
@@ -335,7 +319,7 @@ export function seedData() {
   const year = new Date().getFullYear();
   return {
     companyGoal: { title: 'EoY target', current: 0, target: 100, unit: '%', targetDate: `${year}-12-31` },
-    schemaVersions: { events: 3, conferences: 4, leads: 2, recruitment: 4 },
+    schemaVersions: { events: 3, conferences: 4, leads: 2 },
     teams: TEAMS,
     people: PEOPLE,
     initiatives: INITIATIVES,
@@ -344,8 +328,6 @@ export function seedData() {
     tasks: seedTasks(),
     slackWebhookUrl: '',
     weeks: seedWeeks(),
-    recruitmentFunnel: seedRecruitmentFunnel(),
-    recruitmentCandidates: sections('rec', ['Candidates'], CANDIDATE_FIELDS),
     docs: seedDocs(),
     docsVersion: 4,
     titlesVersion: 1,
@@ -357,11 +339,13 @@ export function seedData() {
     eventsFunnelVersion: 7,
     eventsNycFunnel: seedEventsFunnel('nyc'),
     eventsSfFunnel: seedEventsFunnel('sf'),
+    partnershipsVersion: 1,
+    partnerships: seedPartnerships(),
     eventsSf: withEvents(sections('sf', ['External Events', 'Internal Events'], EVENT_FIELDS), SF_EXTERNAL_EVENTS, SF_INTERNAL_EVENTS),
     pageNotes: {
       documentation: '',
+      partnerships: '',
       leadLists: '',
-      recruitmentFunnel: 'This is to bring top-of-funnel talent towards Extend.\n\nA note on events: it’s much more interesting to do events in partnership with others, since it has the same impact with much less effort and time spent. For school partnerships, the goal is to create relationships early, so when there is very strong talent, it gets funneled to us quickly.\n\nTo create a successful funnel for Extend, there need to be multiple long-term relationships put in place. That’s why we’re looking at:\n\n• School partnerships for newcomers\n• Event sponsorships for those already in the ecosystem\n• Event attendance, to really understand who we are getting in front of and whether we are getting in front of the right people — whether that is a potential employee of a future client, or our own future employee\n• Event partnerships, as our ICPs converge\n• Companies to track employees at, as these would be recruiting for more senior roles with the same level of intensity and grit as Extend\n• The count from overview leads into interview booked, and the delta between them',
       externalConferences: '',
       eventsNyc: '',
       eventsSf: '',

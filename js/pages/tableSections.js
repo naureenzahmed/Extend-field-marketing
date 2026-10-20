@@ -7,7 +7,6 @@ export const UNASSIGNED = 'Unassigned';
 
 /* A page made of titled sections, each an editable table with its own field schema.
    opts.trackerKey adds weekly-metric tracker sections (from that data key) below the tables;
-   opts.notesKey reads page notes from a key other than the data key;
    opts.groupBy = { key, groups } splits each table (and tracker name lists) into sub-groups. */
 export function renderTableSectionsPage(container, key, opts) {
   const data = getData();
@@ -15,7 +14,7 @@ export function renderTableSectionsPage(container, key, opts) {
   const rerender = () => renderTableSectionsPage(container, key, opts);
 
   container.innerHTML = `
-    ${notesBoxHtml(opts.notesKey || key)}
+    ${notesBoxHtml(key)}
     <div class="toolbar">
       <div class="page-title" style="margin:0;">${escapeHtml(opts.title)}</div>
       <button class="btn btn-primary" id="add-section-btn">+ Section</button>

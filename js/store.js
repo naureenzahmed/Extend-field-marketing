@@ -1,4 +1,4 @@
-import { seedData, seedInspiration } from './seed.js';
+import { seedData, seedInspiration, PARTNERSHIP_TITLES } from './seed.js';
 
 const STORAGE_KEY = 'extendFieldMarketingData.v1';
 
@@ -6,7 +6,6 @@ const SCHEMA_KEYS = {
   events: ['eventsNyc', 'eventsSf'],
   conferences: ['externalConferences'],
   leads: ['leadLists'],
-  recruitment: ['recruitmentFunnel'],
 };
 
 // Documentation section ids added in each docsVersion.
@@ -73,13 +72,14 @@ function load() {
       if (funnelVersion < fresh.eventsFunnelVersion) {
         const refresh = (key, suffix) => {
           const section = stored[key]?.find((s) => s.id.endsWith(suffix));
-          if (section) section.entities = fresh[key].find((s) => s.id === section.id).entities;
+          const freshSection = [...fresh[key], ...fresh.partnerships].find((s) => s.id === section?.id);
+          if (section && freshSection) section.entities = freshSection.entities;
         };
         if (funnelVersion < 2) ['eventsNycFunnel', 'eventsSfFunnel'].forEach((key) => refresh(key, '-attendance'));
         if (funnelVersion < 5) refresh('eventsSfFunnel', '-partnerships');
         if (funnelVersion < 6) {
           const section = stored.eventsNycFunnel?.find((s) => s.id === 'nyc-partnerships');
-          const added = fresh.eventsNycFunnel.find((s) => s.id === 'nyc-partnerships').entities
+          const added = fresh.partnerships.find((s) => s.id === 'nyc-partnerships').entities
             .filter((e) => ['Betaworks', 'Rho'].includes(e.name));
           added.forEach((e) => { if (section && !section.entities.some((x) => x.name === e.name)) section.entities.push(e); });
         }
@@ -142,6 +142,19 @@ function load() {
           stored[key].forEach((section) => { section.fields = fresh[key][0].fields; });
         }
         stored.industryVersion = fresh.industryVersion;
+        changed = true;
+      }
+      // partnershipsVersion 1: Partnership Events move from the events pages to the Partnerships page,
+      // keeping their companies and weekly numbers. Runs after the funnel upgrades above, which edit them in place.
+      if ((stored.partnershipsVersion || 0) < fresh.partnershipsVersion) {
+        stored.partnerships = ['nyc', 'sf'].map((prefix) => {
+          const key = prefix === 'nyc' ? 'eventsNycFunnel' : 'eventsSfFunnel';
+          const id = `${prefix}-partnerships`;
+          const section = stored[key]?.find((s) => s.id === id);
+          if (stored[key]) stored[key] = stored[key].filter((s) => s.id !== id);
+          return section ? { ...section, title: PARTNERSHIP_TITLES[prefix] } : fresh.partnerships.find((s) => s.id === id);
+        });
+        stored.partnershipsVersion = fresh.partnershipsVersion;
         changed = true;
       }
       // Backfill any keys added to the seed after this data was first saved.
