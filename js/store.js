@@ -240,6 +240,7 @@ function load() {
       //   fieldMarketingVersion 5: the events pages drop the Community Event format and its events.
       //   fieldMarketingVersion 6: Social & Content drops the Content Owner column, and Teaser Date becomes
       //   a window one to two weeks before each event.
+      //   fieldMarketingVersion 7: Social & Content gains Posting Period (the week before each event).
       const fmVersion = stored.fieldMarketingVersion || 0;
       if (fmVersion < fresh.fieldMarketingVersion) {
         if (fmVersion < 1) upgradeToFieldMarketing(stored, fresh);
@@ -275,6 +276,14 @@ function load() {
               delete row.contentOwner;
               const teaserWindow = fresh.socialPlan[0].entries.find((f) => f.id === row.id)?.teaserDate;
               if (teaserWindow && seededTeaserDates.includes(row.teaserDate || '')) row.teaserDate = teaserWindow;
+            });
+          });
+        }
+        if (fmVersion < 7) {
+          (stored.socialPlan || []).filter((s) => s.id === 'social-events').forEach((s) => {
+            s.fields = fresh.socialPlan[0].fields;
+            s.entries.forEach((row) => {
+              if (!row.postingPeriod) row.postingPeriod = fresh.socialPlan[0].entries.find((f) => f.id === row.id)?.postingPeriod || '';
             });
           });
         }
