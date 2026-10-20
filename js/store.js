@@ -207,10 +207,16 @@ function load() {
       }
       // fieldMarketingVersion 1: field-marketing overhaul. Keeps everything typed so far; replaces template content.
       //   fieldMarketingVersion 2: Bo is head of all content (only where the owner hasn't been changed).
+      //   fieldMarketingVersion 3: follow-up steps on the conference page have no owner names.
       const fmVersion = stored.fieldMarketingVersion || 0;
       if (fmVersion < fresh.fieldMarketingVersion) {
         if (fmVersion < 1) upgradeToFieldMarketing(stored, fresh);
         if (fmVersion === 1) makeHeadOfContent(stored, fresh);
+        if (fmVersion < 3) {
+          (stored.externalConferences || []).forEach((c) => c.sections
+            .filter((s) => s.id.endsWith('-post'))
+            .forEach((s) => s.entries.forEach((row) => { row.owner = ''; })));
+        }
         stored.fieldMarketingVersion = fresh.fieldMarketingVersion;
         changed = true;
       }

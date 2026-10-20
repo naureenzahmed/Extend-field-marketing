@@ -295,7 +295,7 @@ function plannedConference({ id, title, start, owners, summary, preOwners, booth
     { time: '18:30', activity: sideEvent, owner: lead, location: 'Nearby venue', notes: '' },
   ];
   const post = POST_TEMPLATE.map(([step, timing], i) => ({
-    step, timing, owner: [meetings, meetings, HEAD_OF_CONTENT, meetings, lead, lead][i], dueDate: day(start, [0, 1, 2, 3, 7, 14][i] + 1), status: 'Not Started',
+    step, timing, owner: '', dueDate: day(start, [0, 1, 2, 3, 7, 14][i] + 1), status: 'Not Started',
   }));
   return { id, title, plan: { summary, rows: { pre, logistics, staffing: staff, runOfShow, post } } };
 }
