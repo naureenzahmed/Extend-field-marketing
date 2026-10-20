@@ -142,7 +142,7 @@ export const SCORECARD_FIELDS = [
   { key: 'decision', label: 'Decision', type: 'select', options: ['', 'Go', 'Maybe', 'No'] },
 ];
 
-export const SCORECARD_NOTE = 'Score (/10) = ICP fit (1–5) + cost per meeting (≤ $300: 3, ≤ $600: 2, ≤ $1,200: 1) + reach (≥ 2,000 developers: 2, ≥ 700: 1). ICP fit, cost and meetings are planning estimates.';
+export const SCORECARD_NOTE = 'EXAMPLE Score (/10) = ICP fit (1–5) + cost per meeting (≤ $300: 3, ≤ $600: 2, ≤ $1,200: 1) + reach (≥ 2,000 developers: 2, ≥ 700: 1). ICP fit, cost and meetings are planning estimates.';
 
 function scored(id, conference, city, dates, expectedAttendees, estDevelopers, icpFit, estCost, expectedMeetings, sponsorshipTier, decision) {
   return { id, conference, city, dates, expectedAttendees, estDevelopers, icpFit, estCost, expectedMeetings, sponsorshipTier, cfpDeadline: '', decision };
