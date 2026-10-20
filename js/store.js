@@ -1,4 +1,4 @@
-import { seedData, seedInspiration, buildPartnershipSections, mergeCityCompanies } from './seed.js';
+import { seedData, seedInspiration, buildPartnershipSections, mergeCityCompanies, addPartnerAdditions, partnershipSection } from './seed.js';
 
 const STORAGE_KEY = 'extendFieldMarketingData.v1';
 
@@ -148,6 +148,7 @@ function load() {
       //   partnershipsVersion 1: Partnership Events move off the events pages (one section per city).
       //   partnershipsVersion 2: sections become industries; each company keeps its city. The per-city
       //   sections (and their weekly numbers) are kept in partnershipsByCity.
+      //   partnershipsVersion 3: more companies per industry (and a new Others section), skipping names already on the page.
       const partnershipsVersion = stored.partnershipsVersion || 0;
       if (partnershipsVersion < fresh.partnershipsVersion) {
         let byCity = stored.partnerships;
@@ -166,6 +167,10 @@ function load() {
           ));
           stored.partnershipsByCity = byCity;
           stored.partnerships = companies.length ? buildPartnershipSections(companies) : fresh.partnerships;
+        }
+        if (partnershipsVersion < 3) {
+          if (!stored.partnerships.some((s) => s.title === 'Others')) stored.partnerships.push(partnershipSection('Others'));
+          addPartnerAdditions(stored.partnerships);
         }
         stored.partnershipsVersion = fresh.partnershipsVersion;
         changed = true;

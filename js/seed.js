@@ -200,7 +200,7 @@ function seedEventsFunnel(prefix) {
 
 export const PARTNERSHIP_INDUSTRIES = [
   'Documentation Software', 'HR Software', 'Finance', 'Banking', 'Community', 'Pharmaceutical',
-  'Cybersecurity', 'Health Care', 'Dev Tools', 'Sales Tools', 'Insurance',
+  'Cybersecurity', 'Health Care', 'Dev Tools', 'Sales Tools', 'Insurance', 'Others',
 ];
 
 // Industry for companies we could place; anything else starts in Unassigned.
@@ -223,6 +223,38 @@ const PARTNER_INDUSTRY = {
 // Industries used on the events pages that map onto a Partnerships section.
 const INDUSTRY_ALIASES = { Pharmaceuticals: 'Pharmaceutical' };
 
+// Further companies per industry (no city yet); skipped if the name is already on the page.
+export const PARTNER_ADDITIONS = {
+  'Documentation Software': ['Notion', 'Atlassian (Confluence)', 'Mintlify', 'GitBook', 'Grammarly / Superhuman (owns Coda)'],
+  'HR Software': ['Rippling', 'Deel', 'Gusto', 'Lattice', 'Ashby'],
+  Finance: ['Stripe', 'Ramp', 'Brex', 'Plaid', 'Mercury'],
+  Banking: ['Revolut', 'Nubank', 'Monzo', 'Chime', 'Wise', 'JPMorgan Chase (kept for its large AI investment)'],
+  Community: ['Discord', 'Reddit', 'Circle', 'Skool'],
+  Pharmaceutical: ['Isomorphic Labs (from Google DeepMind)', 'Recursion', 'Insitro', 'Xaira Therapeutics', 'Novo Nordisk'],
+  Cybersecurity: ['Wiz (being acquired by Google)', 'CrowdStrike', 'Cloudflare', 'Vanta', '1Password', 'Snyk'],
+  'Health Care': ['Abridge', 'Hippocratic AI', 'Tempus AI', 'Oscar Health', 'Hinge Health'],
+  'Dev Tools': ['Vercel', 'Cursor (SpaceX)', 'Supabase', 'Linear', 'Replit', 'Retool', 'PostHog', 'Anthropic'],
+  'Sales Tools': ['Clay', 'Gong', 'Apollo.io', 'Attio', 'HubSpot'],
+  Insurance: ['Lemonade', 'Coalition', 'Vouch', 'Root', 'Next Insurance'],
+  Others: ['OpenAI', 'Harvey'],
+};
+
+/* Appends PARTNER_ADDITIONS to the matching industry sections, skipping names already anywhere on the page. */
+export function addPartnerAdditions(sections) {
+  const known = new Set(sections.flatMap((s) => (s.entities || []).map((e) => e.name.toLowerCase())));
+  for (const [industry, names] of Object.entries(PARTNER_ADDITIONS)) {
+    const section = sections.find((s) => s.title === industry);
+    if (!section) continue;
+    section.entities = section.entities || [];
+    for (const name of names) {
+      if (known.has(name.toLowerCase())) continue;
+      section.entities.push({ name, city: '', links: [] });
+      known.add(name.toLowerCase());
+    }
+  }
+  return sections;
+}
+
 export const PARTNERSHIP_UNASSIGNED_ID = 'partner-unassigned';
 
 export function partnershipMetrics() {
@@ -234,12 +266,14 @@ export function partnershipMetrics() {
 }
 
 /* Sorts companies ({ name, city, links, industry? }) into one section per industry, plus Unassigned. */
+export function partnershipSection(title) {
+  return { id: `partner-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`, title, entities: [], metrics: partnershipMetrics() };
+}
+
 export function buildPartnershipSections(companies) {
   const sections = [
     { id: PARTNERSHIP_UNASSIGNED_ID, title: 'Unassigned', entities: [], metrics: partnershipMetrics() },
-    ...PARTNERSHIP_INDUSTRIES.map((title) => ({
-      id: `partner-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`, title, entities: [], metrics: partnershipMetrics(),
-    })),
+    ...PARTNERSHIP_INDUSTRIES.map(partnershipSection),
   ];
   for (const company of companies) {
     const industry = INDUSTRY_ALIASES[company.industry] || company.industry || PARTNER_INDUSTRY[company.name];
@@ -270,7 +304,7 @@ export function mergeCityCompanies(byCity) {
 
 function seedPartnerships() {
   const toCompanies = (names) => names.map((name) => ({ name, links: [] }));
-  return buildPartnershipSections(mergeCityCompanies({ NYC: toCompanies(PARTNERS.nyc), SF: toCompanies(PARTNERS.sf) }));
+  return addPartnerAdditions(buildPartnershipSections(mergeCityCompanies({ NYC: toCompanies(PARTNERS.nyc), SF: toCompanies(PARTNERS.sf) })));
 }
 
 /* ---------- Roadmap (opened from the header target) ---------- */
@@ -400,7 +434,7 @@ export function seedData() {
     eventsFunnelVersion: 7,
     eventsNycFunnel: seedEventsFunnel('nyc'),
     eventsSfFunnel: seedEventsFunnel('sf'),
-    partnershipsVersion: 2,
+    partnershipsVersion: 3,
     partnerships: seedPartnerships(),
     eventsSf: withEvents(sections('sf', ['External Events', 'Internal Events'], EVENT_FIELDS), SF_EXTERNAL_EVENTS, SF_INTERNAL_EVENTS),
     pageNotes: {
