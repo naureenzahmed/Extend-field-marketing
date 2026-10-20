@@ -53,7 +53,7 @@ export function renderDeadlineCalendar(container) {
         `).join('')}
       </div>
       <div class="cal-filter-col">
-        <div class="section-label">Team Members</div>
+        <div class="section-label">Extend Team Attending</div>
         ${data.teams.map((t) => `
           <div class="cal-filter-team-group">
             <div class="cal-filter-team-label"><span class="team-dot" style="background:${t.color};"></span>${escapeHtml(t.name)}</div>
