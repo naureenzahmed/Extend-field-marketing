@@ -2,12 +2,14 @@ import { getData, commit } from '../store.js';
 import { uid, escapeHtml } from '../utils.js';
 import { notesBoxHtml } from '../notesBox.js';
 import { renderTrackerSections } from './trackerShared.js';
+import { COMPUTED } from '../computed.js';
 
 export const UNASSIGNED = 'Unassigned';
 
 /* A page made of titled sections, each an editable table with its own field schema.
    opts.trackerKey adds weekly-metric tracker sections (from that data key) below the tables;
-   opts.groupBy = { key, groups } splits each table (and tracker name lists) into sub-groups. */
+   opts.groupBy = { key, groups } splits each table (and tracker name lists) into sub-groups;
+   opts.datalists = { id: () => [values] } adds suggestion lists for fields with { list: id }. */
 export function renderTableSectionsPage(container, key, opts) {
   const data = getData();
   const sections = data[key];
@@ -24,6 +26,7 @@ export function renderTableSectionsPage(container, key, opts) {
       <button class="btn btn-primary" id="add-section-confirm">Add</button>
       <button class="btn btn-ghost" id="add-section-cancel">Cancel</button>
     </div>
+    ${datalistsHtml(opts.datalists)}
     <div class="stack-16" id="table-sections">${sections.map((s) => renderSection(s, opts)).join('')}</div>
     ${opts.trackerKey ? '<div class="stack-16" id="page-tracker-sections" style="margin-top:16px;"></div>' : ''}
   `;
@@ -115,7 +118,14 @@ function tableHtml(s, rows, opts) {
   `;
 }
 
+export function datalistsHtml(datalists = {}) {
+  return Object.entries(datalists).map(([id, values]) => `
+    <datalist id="${id}">${values().map((v) => `<option value="${escapeHtml(v)}"></option>`).join('')}</datalist>
+  `).join('');
+}
+
 function renderCell(s, entry, f) {
+  if (f.type === 'computed') return `<span class="cell-computed">${escapeHtml(String(COMPUTED[f.key]?.(entry) ?? ''))}</span>`;
   const value = entry[f.key] || '';
   const width = f.width ? ` style="min-width:${f.width}px;"` : '';
   const attrs = `class="cell-input" data-row-id="${entry.id}" data-section-id="${s.id}" data-field="${f.key}"${width}`;
@@ -125,7 +135,8 @@ function renderCell(s, entry, f) {
     </select>`;
   }
   if (f.type === 'date') return `<input type="date" ${attrs} value="${escapeHtml(value)}" />`;
-  return `<input type="text" ${attrs} value="${escapeHtml(value)}" title="${escapeHtml(value)}" />`;
+  const list = f.list ? ` list="${f.list}"` : '';
+  return `<input type="text" ${attrs}${list} value="${escapeHtml(value)}" title="${escapeHtml(value)}" />`;
 }
 
 export function wireEvents(root, sections, rerender, groupKey = null) {
@@ -151,6 +162,10 @@ export function wireEvents(root, sections, rerender, groupKey = null) {
       commit();
       if (input.dataset.field === groupKey) rerender(); // the row moves to its new group
     });
+    // Computed cells (e.g. cost per meeting) refresh once the edit is finished.
+    if (findSection(input.dataset.sectionId).fields.some((f) => f.type === 'computed')) {
+      input.addEventListener('change', () => { if (input.tagName !== 'SELECT' || input.dataset.field !== groupKey) rerender(); });
+    }
   });
 
   root.querySelectorAll('[data-remove-row]').forEach((btn) => {

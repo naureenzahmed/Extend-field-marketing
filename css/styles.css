@@ -577,3 +577,8 @@ a.doc-social:hover { color: var(--text); }
 .entity-group-select { flex: 0 0 150px; }
 .entity-city { flex: 0 0 210px; }
 input.entity-city { width: 210px; }
+
+/* Read-only computed cells (counts from Lead Lists, scorecard math) */
+.cell-computed { display: inline-block; min-width: 60px; padding: 6px 8px; font-weight: 600; color: var(--text); }
+.section-note { font-size: 12px; color: var(--text-dim); margin: -2px 0 10px; line-height: 1.5; }
+.page-subtitle { font-size: 15px; font-weight: 700; margin: 28px 0 12px; }

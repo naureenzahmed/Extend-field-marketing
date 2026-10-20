@@ -1,5 +1,6 @@
 import { getData, commit } from './store.js';
-import { LEAD_FIELDS, EVENT_FIELDS, INDUSTRIES } from './seed.js';
+import { LEAD_FIELDS } from './seed.js';
+import { EXTERNAL_EVENT_FIELDS, EVENT_FORMATS, SOCIAL_FIELDS } from './fieldMarketing.js';
 import { renderCover } from './pages/cover.js';
 import { renderDocumentation } from './pages/documentation.js';
 import { renderTableSectionsPage } from './pages/tableSections.js';
@@ -7,19 +8,28 @@ import { renderExternalConferences } from './pages/externalConferences.js';
 import { renderRoadmap } from './pages/roadmap.js';
 import { renderPartnerships } from './pages/partnerships.js';
 
-// Events pages split every section by industry.
-const BY_INDUSTRY = { key: 'industry', groups: INDUSTRIES };
+// Events pages split every section by event format.
+const BY_FORMAT = { key: 'format', groups: EVENT_FORMATS };
+
+// Every event and conference name, suggested in Lead Lists' Source Event column.
+function eventNames() {
+  const data = getData();
+  const events = ['eventsNyc', 'eventsSf'].flatMap((k) => data[k].flatMap((s) => s.entries.map((e) => e.eventName)));
+  const conferences = data.conferenceScorecard.flatMap((s) => s.entries.map((e) => e.conference));
+  return [...new Set([...events, ...conferences].filter(Boolean))];
+}
 
 const tablePage = (key, title, fields, rowLabel, extra = {}) => (c) => renderTableSectionsPage(c, key, { title, fields, rowLabel, ...extra });
 
 const PAGES = {
   home: { label: 'Home', render: (c) => renderCover(c, PAGES) },
   documentation: { label: 'Documentation', dataKey: 'docs', render: renderDocumentation },
-  leadLists: { label: 'Lead Lists', dataKey: 'leadLists', render: tablePage('leadLists', 'Lead Lists', LEAD_FIELDS, 'Add lead') },
+  leadLists: { label: 'Lead Lists', dataKey: 'leadLists', render: tablePage('leadLists', 'Lead Lists', LEAD_FIELDS, 'Add lead', { datalists: { 'event-names': eventNames } }) },
   externalConferences: { label: 'External Conferences', dataKey: 'externalConferences', render: renderExternalConferences },
-  eventsNyc: { label: 'Events NYC', dataKey: 'eventsNyc', extraDataKey: 'eventsNycFunnel', render: tablePage('eventsNyc', 'Events NYC', EVENT_FIELDS, 'Add event', { showEmptyTable: true, trackerKey: 'eventsNycFunnel', groupBy: BY_INDUSTRY }) },
-  eventsSf: { label: 'Events SF', dataKey: 'eventsSf', extraDataKey: 'eventsSfFunnel', render: tablePage('eventsSf', 'Events SF', EVENT_FIELDS, 'Add event', { showEmptyTable: true, trackerKey: 'eventsSfFunnel', groupBy: BY_INDUSTRY }) },
+  eventsNyc: { label: 'Events NYC', dataKey: 'eventsNyc', extraDataKey: 'eventsNycFunnel', render: tablePage('eventsNyc', 'Events NYC', EXTERNAL_EVENT_FIELDS, 'Add event', { showEmptyTable: true, trackerKey: 'eventsNycFunnel', groupBy: BY_FORMAT }) },
+  eventsSf: { label: 'Events SF', dataKey: 'eventsSf', extraDataKey: 'eventsSfFunnel', render: tablePage('eventsSf', 'Events SF', EXTERNAL_EVENT_FIELDS, 'Add event', { showEmptyTable: true, trackerKey: 'eventsSfFunnel', groupBy: BY_FORMAT }) },
   partnerships: { label: 'Partnerships', dataKey: 'partnerships', render: (c) => renderPartnerships(c, { title: 'Partnerships' }) },
+  socialPlan: { label: 'Social & Content', dataKey: 'socialPlan', render: tablePage('socialPlan', 'Social & Content', SOCIAL_FIELDS, 'Add event', { showEmptyTable: true }) },
   // Not in the nav: opened by clicking the target in the header.
   roadmap: { label: 'Roadmap', hidden: true, render: renderRoadmap },
 };

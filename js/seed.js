@@ -1,5 +1,9 @@
-import { addDays, todayISO, uid } from './utils.js';
-import { NYC_EXTERNAL_EVENTS, NYC_INTERNAL_EVENTS, SF_EXTERNAL_EVENTS, SF_INTERNAL_EVENTS } from './eventImports.js';
+import { NYC_EXTERNAL_EVENTS, SF_EXTERNAL_EVENTS } from './eventImports.js';
+import {
+  EXTERNAL_EVENT_FIELDS, INTERNAL_EVENT_FIELDS, EXTERNAL_EVENT_FORMATS, NYC_INTERNAL_EVENTS, SF_INTERNAL_EVENTS,
+  eventFunnelMetrics, partnershipFunnelMetrics, newConference, PLANNED_CONFERENCES, SCORECARD_FIELDS, SCORECARD_ROWS,
+  SOCIAL_FIELDS, SOCIAL_PLAN, COMPANY_GOAL, ROADMAP_INITIATIVES, ROADMAP_TASKS, ROADMAP_MILESTONES, ROADMAP_OKRS,
+} from './fieldMarketing.js';
 
 // Same columns as the ElevenLabs Inbound Leads table, with "User Name" as "Lead Name".
 const YES_NO_OPTIONS = ['', 'Yes', 'No'];
@@ -7,7 +11,9 @@ const YES_NO_OPTIONS = ['', 'Yes', 'No'];
 export const LEAD_FIELDS = [
   { key: 'company', label: 'Company' },
   { key: 'leadName', label: 'Lead Name' },
-  { key: 'source', label: 'Source', type: 'select', options: ['', 'Email', 'LinkedIn Ads', 'Google Ads', 'SEO/AEO', 'Reddit', 'Newsletter', 'Referral', 'Website', 'Other'] },
+  { key: 'source', label: 'Source', type: 'select', options: ['', 'Event', 'Conference', 'Email', 'LinkedIn Ads', 'Google Ads', 'SEO/AEO', 'Reddit', 'Newsletter', 'Referral', 'Website', 'Other'] },
+  // Links a lead to an event; the events pages count Leads and Meetings Booked from this.
+  { key: 'sourceEvent', label: 'Source Event', list: 'event-names', width: 240 },
   { key: 'title', label: 'Title' },
   { key: 'stage', label: 'Stage', type: 'select', options: ['', 'New', 'Contacted', 'Demo Booked', 'Demo Completed', 'Negotiation', 'Won', 'Lost'] },
   { key: 'positiveAnswer', label: 'Positive Answer', type: 'select', options: YES_NO_OPTIONS },
@@ -18,69 +24,6 @@ export const LEAD_FIELDS = [
   { key: 'estimatedQuantity', label: 'Estimated Quantity' },
   { key: 'estimatedRevenue', label: 'Estimated Revenue' },
   { key: 'note', label: 'Note' },
-];
-
-const STATUS_OPTIONS = ['', 'Not Started', 'In Progress', 'Done'];
-
-const CONFERENCE_STAGES = [
-  {
-    key: 'pre', title: 'Pre-Conference Prep',
-    fields: [
-      { key: 'item', label: 'Item' },
-      { key: 'details', label: 'Details' },
-      { key: 'owner', label: 'Owner' },
-      { key: 'dueDate', label: 'Due Date', type: 'date' },
-      { key: 'status', label: 'Status', type: 'select', options: STATUS_OPTIONS },
-    ],
-  },
-  {
-    key: 'logistics', title: 'Conference Logistics',
-    fields: [
-      { key: 'item', label: 'Item' },
-      { key: 'details', label: 'Details' },
-      { key: 'owner', label: 'Owner' },
-      { key: 'cost', label: 'Cost' },
-      { key: 'status', label: 'Status', type: 'select', options: STATUS_OPTIONS },
-    ],
-  },
-  {
-    key: 'post', title: 'Post-Conference',
-    fields: [
-      { key: 'item', label: 'Item' },
-      { key: 'details', label: 'Details' },
-      { key: 'owner', label: 'Owner' },
-      { key: 'dueDate', label: 'Due Date', type: 'date' },
-      { key: 'status', label: 'Status', type: 'select', options: STATUS_OPTIONS },
-    ],
-  },
-];
-
-/* A conference group: its title plus one empty table per stage. */
-export function newConference(id, title) {
-  return {
-    id, title,
-    sections: CONFERENCE_STAGES.map((stage) => ({
-      id: `${id}-${stage.key}`,
-      title: stage.title,
-      fields: stage.fields,
-      entries: [],
-    })),
-  };
-}
-
-export const INDUSTRIES = ['Cybersecurity', 'Finance', 'Pharmaceuticals', 'Real Estate', 'Health Care'];
-
-export const EVENT_FIELDS = [
-  { key: 'eventName', label: 'Event Name', width: 260 },
-  { key: 'companyName', label: 'Company Name', width: 180 },
-  // Text, not a date picker: imported dates include ranges like "Oct 13–15".
-  { key: 'date', label: 'Date', width: 200 },
-  { key: 'lumaLink', label: 'Link to Luma' },
-  { key: 'expectedAttendees', label: 'Number of Attendees Expected' },
-  { key: 'currentAttendees', label: 'Current Number of Attendees' },
-  { key: 'targetAudience', label: 'Target Audience', width: 420 },
-  { key: 'checklistLink', label: 'Event Checklist Link' },
-  { key: 'industry', label: 'Industry', type: 'select', options: ['', ...INDUSTRIES] },
 ];
 
 function sections(prefix, titles, fields) {
@@ -98,10 +41,13 @@ function renameSection(pageSections, id, title) {
   return pageSections;
 }
 
-/* Fills an events page's External and Internal Events sections. */
+/* Fills an events page's External and Internal Events sections (each with its own columns). */
 function withEvents(pageSections, external, internal = []) {
-  pageSections[0].entries = external.map((e) => ({ ...e }));
-  pageSections[1].entries = internal.map((e) => ({ ...e }));
+  const blank = (fields) => Object.fromEntries(fields.filter((f) => f.type !== 'computed').map((f) => [f.key, '']));
+  pageSections[0].fields = EXTERNAL_EVENT_FIELDS;
+  pageSections[0].entries = external.map((e) => ({ ...blank(EXTERNAL_EVENT_FIELDS), ...e, format: EXTERNAL_EVENT_FORMATS[e.id] || '' }));
+  pageSections[1].fields = INTERNAL_EVENT_FIELDS;
+  pageSections[1].entries = internal.map((e) => ({ ...blank(INTERNAL_EVENT_FIELDS), ...e }));
   return pageSections;
 }
 
@@ -187,11 +133,7 @@ function seedEventsFunnel(prefix) {
         { name: 'Event 3', links: [] },
         { name: 'Event 4', links: [] },
       ],
-      metrics: [
-        { id: 'm1', label: 'Leads (#)', target: 100, values: {} },
-        { id: 'm2', label: 'Interview Booked (%)', target: '20%', values: {} },
-        { id: 'm3', label: 'Interview Booked (#)', target: 20, values: {} },
-      ],
+      metrics: eventFunnelMetrics(),
     },
   ];
 }
@@ -340,11 +282,7 @@ export function applyPartnerHQ(sections) {
 export const PARTNERSHIP_UNASSIGNED_ID = 'partner-unassigned';
 
 export function partnershipMetrics() {
-  return [
-    { id: 'm1', label: 'Leads (#)', target: '40 per event', values: {} },
-    { id: 'm2', label: 'Interview Booked (%)', target: '37.5%', values: {} },
-    { id: 'm3', label: 'Interview Booked (#)', target: '15 per event', values: {} },
-  ];
+  return partnershipFunnelMetrics();
 }
 
 /* Sorts companies ({ name, city, links, industry? }) into one section per industry, plus Unassigned. */
@@ -408,114 +346,36 @@ export const PEOPLE = TEAM_NAMES.map((name, i) => ({
   id: `p${i + 1}`, name, role: '', teamId: TEAMS[i % TEAMS.length].id,
 }));
 
-export const INITIATIVES = [
-  { id: 'init-1', name: 'Initiative 1', teamId: 'team-a', goalLabel: 'Reach target', current: 0, target: 100, unit: '%' },
-  { id: 'init-2', name: 'Initiative 2', teamId: 'team-b', goalLabel: 'Reach target', current: 0, target: 100, unit: '%' },
-  { id: 'init-3', name: 'Initiative 3', teamId: 'team-c', goalLabel: 'Reach target', current: 0, target: 100, unit: '%' },
-];
-
-const TASK_STATUSES = ['Backlog', 'Ready', 'In progress', 'In design', 'Committed', 'Done'];
-
-function randomInt(min, max) {
-  return min + Math.floor(Math.random() * (max - min + 1));
-}
-
-function seedTasks() {
-  const tasks = [];
-  INITIATIVES.forEach((init) => {
-    const teamPeople = PEOPLE.filter((p) => p.teamId === init.teamId);
-    const count = randomInt(2, 4);
-    for (let i = 1; i <= count; i++) {
-      const startOffset = randomInt(-21, 45);
-      const duration = randomInt(3, 12);
-      const assignee = teamPeople.length ? teamPeople[randomInt(0, teamPeople.length - 1)] : null;
-      tasks.push({
-        id: uid('task'),
-        title: `Task ${i}`,
-        description: 'Example task description — replace with the real scope of work.',
-        impact: 'Example impact statement.',
-        status: TASK_STATUSES[randomInt(0, TASK_STATUSES.length - 1)],
-        assigneeId: assignee ? assignee.id : null,
-        startDate: addDays(todayISO(), startOffset),
-        endDate: addDays(todayISO(), startOffset + duration),
-        designDeadline: '',
-        sectionId: init.id,
-        teamId: init.teamId,
-        client: '',
-        createdBy: 'You',
-        blockedBy: [],
-        subtasks: [],
-        comments: [],
-      });
-    }
-  });
-  return tasks;
-}
-
-function seedMilestones() {
-  return [
-    { id: 'ms1', date: addDays(todayISO(), -30), title: 'Milestone 1', teamId: 'team-a' },
-    { id: 'ms2', date: addDays(todayISO(), -10), title: 'Milestone 2', teamId: 'team-b' },
-    { id: 'ms3', date: addDays(todayISO(), 20), title: 'Milestone 3', teamId: 'team-c' },
-    { id: 'ms4', date: addDays(todayISO(), 60), title: 'Milestone 4', teamId: 'team-a' },
-  ];
-}
-
-function seedOkrs() {
-  return [
-    {
-      id: 'okr-company', objective: 'Sector Objective 1', teamId: null,
-      keyResults: [
-        { id: 'kr-co-1', title: 'Key result 1', current: 0, target: 100, deadline: addDays(todayISO(), 90), assigneeIds: [] },
-        { id: 'kr-co-2', title: 'Key result 2', current: 0, target: 100, deadline: addDays(todayISO(), 60), assigneeIds: [] },
-      ],
-    },
-    {
-      id: 'okr-1', objective: 'Objective 1', teamId: 'team-a',
-      keyResults: [
-        { id: 'kr-1-1', title: 'Key result 1', current: 0, target: 100, deadline: addDays(todayISO(), 30), assigneeIds: ['p1', 'p4'] },
-        { id: 'kr-1-2', title: 'Key result 2', current: 0, target: 100, deadline: addDays(todayISO(), 45), assigneeIds: ['p2'] },
-      ],
-    },
-    {
-      id: 'okr-2', objective: 'Objective 2', teamId: 'team-b',
-      keyResults: [{ id: 'kr-2-1', title: 'Key result 1', current: 0, target: 100, deadline: addDays(todayISO(), 30), assigneeIds: ['p6', 'p8'] }],
-    },
-    {
-      id: 'okr-3', objective: 'Objective 3', teamId: 'team-c',
-      keyResults: [{ id: 'kr-3-1', title: 'Key result 1', current: 0, target: 100, deadline: addDays(todayISO(), 30), assigneeIds: ['p10', 'p12'] }],
-    },
-  ];
-}
-
 export function seedData() {
-  const year = new Date().getFullYear();
   return {
-    companyGoal: { title: 'EoY target', current: 0, target: 100, unit: '%', targetDate: `${year}-12-31` },
+    fieldMarketingVersion: 1,
+    companyGoal: { ...COMPANY_GOAL },
     schemaVersions: { events: 3, conferences: 4, leads: 2 },
     peopleVersion: 1,
     teams: TEAMS,
     people: PEOPLE,
-    initiatives: INITIATIVES,
-    milestones: seedMilestones(),
-    okrs: seedOkrs(),
-    tasks: seedTasks(),
+    initiatives: ROADMAP_INITIATIVES,
+    milestones: ROADMAP_MILESTONES,
+    okrs: ROADMAP_OKRS,
+    tasks: ROADMAP_TASKS,
     slackWebhookUrl: '',
     weeks: seedWeeks(),
     docs: seedDocs(),
     docsVersion: 4,
     titlesVersion: 1,
     leadLists: renameSection(sections('leads', ['Conference Attendee Lists', 'Event RSVPs', 'Target Accounts'], LEAD_FIELDS), 'leads-target-accounts', 'Target Accounts with Interaction'),
-    externalConferences: [newConference('conf-1', 'Conference Name')],
+    conferenceScorecard: [{ id: 'conf-scorecard', title: 'Conference Scorecard', fields: SCORECARD_FIELDS, entries: SCORECARD_ROWS }],
+    externalConferences: PLANNED_CONFERENCES.map((c) => newConference(c.id, c.title, c.plan)),
+    socialPlan: [{ id: 'social-events', title: 'Event Social Plan', fields: SOCIAL_FIELDS, entries: SOCIAL_PLAN }],
     eventsImportVersion: 4,
     industryVersion: 1,
-    eventsNyc: withEvents(sections('nyc', ['External Events', 'Internal Events'], EVENT_FIELDS), NYC_EXTERNAL_EVENTS, NYC_INTERNAL_EVENTS),
+    eventsNyc: withEvents(sections('nyc', ['External Events', 'Internal Events'], EXTERNAL_EVENT_FIELDS), NYC_EXTERNAL_EVENTS, NYC_INTERNAL_EVENTS),
     eventsFunnelVersion: 7,
     eventsNycFunnel: seedEventsFunnel('nyc'),
     eventsSfFunnel: seedEventsFunnel('sf'),
     partnershipsVersion: 5,
     partnerships: seedPartnerships(),
-    eventsSf: withEvents(sections('sf', ['External Events', 'Internal Events'], EVENT_FIELDS), SF_EXTERNAL_EVENTS, SF_INTERNAL_EVENTS),
+    eventsSf: withEvents(sections('sf', ['External Events', 'Internal Events'], EXTERNAL_EVENT_FIELDS), SF_EXTERNAL_EVENTS, SF_INTERNAL_EVENTS),
     pageNotes: {
       documentation: '',
       partnerships: '',
@@ -524,6 +384,7 @@ export function seedData() {
       eventsNyc: '',
       eventsSf: '',
       roadmap: '',
+      socialPlan: '',
     },
   };
 }

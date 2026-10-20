@@ -33,29 +33,3 @@ export const SF_EXTERNAL_EVENTS = [
   importedEvent("sf-ext-10", "Microsoft Ignite 2026", "Nov 17–20 (pre-day Nov 16)", "15,000", "IT pros, cloud architects, developers: Azure, Copilot, agents, security"),
   importedEvent("sf-ext-11", "YC Fall 2026 Demo Day", "Dec 2", "1,500", "Y Combinator F26 batch pitches to investors and press"),
 ];
-
-/* Internal Events: Extend-hosted event ideas. */
-function internalEvent(id, eventName, targetAudience = '', companyName = '') {
-  return { id, eventName, companyName, date: '', lumaLink: '', expectedAttendees: '', currentAttendees: '', targetAudience, checklistLink: '', industry: '' };
-}
-
-export const NYC_INTERNAL_EVENTS = [
-  internalEvent('nyc-int-1', 'Late-Night Comedy Night – like Tech Roast shows, each person does a 4–5 minute comedy bit on stage', 'Founders and people from the tech community'),
-  internalEvent('nyc-int-2', 'Raspberry Pi Night – builders night with Raspberry Pis (about $40 per unit on average): 3 hours building, 1 hour demos, 2 hours networking, with raspberry/berry pies served', 'Builders'),
-  internalEvent('nyc-int-3', 'Jazz Jam Session – in a cafe after hours (cheap venue, friendly setting) for people who want to jam together', 'People in tech who play instruments'),
-  internalEvent('nyc-int-4', 'Video Game Olympics – people bring laptops for 3 hours of gaming; the winner takes home a small video game or credits', 'People in tech who are big gamers', 'Arkadium, Rockstar Games, Take-Two Interactive, Avalanche Studios Group'),
-];
-
-export const SF_INTERNAL_EVENTS = [
-  internalEvent('sf-int-1', "Ocean Beach Bonfire – fire ring at the designated beach fire pits, with marshmallows, s'mores and drinks", 'Founders and friends'),
-  internalEvent('sf-int-2', 'Bike to Sausalito and Back'),
-  internalEvent('sf-int-3', 'Cake Tasting at Dolores Park'),
-  internalEvent('sf-int-4', "Founders' Farmers Market at Dolores Park – each founder brings a treat they made (cake, dim sum, etc.)", 'Founders'),
-  internalEvent('sf-int-5', 'Canadian Founders Panel Talk in SF'),
-  internalEvent('sf-int-6', 'Dinner at the Computer History Museum'),
-  internalEvent('sf-int-7', 'Fucked Up Nights – founders get 5 minutes to tell a time they fucked up', 'Founders'),
-  internalEvent('sf-int-8', 'Board Games Night and Late-Night Build Session'),
-  internalEvent('sf-int-9', 'Startup Trivia / Game Show – questions on tech history and famous pivots', 'Mixed teams of founders, operators and investors'),
-  internalEvent('sf-int-10', "Live Product Teardown – an expert critiques volunteer startups' landing pages or demos on the spot"),
-  internalEvent('sf-int-11', 'Design Your Own Mechanical Keyboard – lots of unique keycaps so people can customize their keyboards; mid-budget, co-host splits the budget'),
-];

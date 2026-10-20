@@ -1,3 +1,4 @@
+import { EXTERNAL_EVENT_FORMATS, REMOVED_INTERNAL_EVENT_IDS } from './fieldMarketing.js';
 import { seedData, seedInspiration, buildPartnershipSections, mergeCityCompanies, addPartnerAdditions, partnershipSection, applyPartnerHQ } from './seed.js';
 
 const STORAGE_KEY = 'extendFieldMarketingData.v1';
@@ -204,6 +205,12 @@ function load() {
         stored.peopleVersion = fresh.peopleVersion;
         changed = true;
       }
+      // fieldMarketingVersion 1: field-marketing overhaul. Keeps everything typed so far; replaces template content.
+      if ((stored.fieldMarketingVersion || 0) < fresh.fieldMarketingVersion) {
+        upgradeToFieldMarketing(stored, fresh);
+        stored.fieldMarketingVersion = fresh.fieldMarketingVersion;
+        changed = true;
+      }
       // Backfill any keys added to the seed after this data was first saved.
       for (const key of Object.keys(fresh)) {
         if (!(key in stored)) { stored[key] = fresh[key]; changed = true; }
@@ -220,6 +227,70 @@ function load() {
   const fresh = seedData();
   save(fresh);
   return fresh;
+}
+
+// Function declarations (not consts): load() runs at module start, before later consts exist.
+function isRecruitingMetrics(section) {
+  return (section.metrics || []).some((m) => /Interview Booked/.test(m.label));
+}
+
+function isPlaceholderTask(t) {
+  return /^Task \d+$/.test(t.title) && /^Example task description/.test(t.description || '');
+}
+
+function upgradeToFieldMarketing(stored, fresh) {
+  // Header target and Roadmap: real goals instead of template placeholders; tasks you added are kept.
+  if (stored.companyGoal?.title === 'EoY target') stored.companyGoal = fresh.companyGoal;
+  stored.initiatives = fresh.initiatives;
+  stored.okrs = fresh.okrs;
+  stored.milestones = fresh.milestones;
+  const kept = (stored.tasks || []).filter((t) => !isPlaceholderTask(t));
+  stored.tasks = [...kept, ...fresh.tasks.filter((t) => !kept.some((k) => k.id === t.id))];
+
+  // Events pages: new columns per table; external events get a format; internal ideas get short names,
+  // pitch, co-host, budget and goal (blank cells only); the Computer History Museum dinner is removed.
+  for (const key of ['eventsNyc', 'eventsSf']) {
+    const freshInternal = fresh[key][1];
+    for (const section of stored[key] || []) {
+      const internal = section.id.endsWith('-internal-events');
+      section.fields = internal ? freshInternal.fields : fresh[key][0].fields;
+      if (!internal) {
+        section.entries.forEach((e) => { if (!e.format && EXTERNAL_EVENT_FORMATS[e.id]) e.format = EXTERNAL_EVENT_FORMATS[e.id]; });
+        continue;
+      }
+      section.entries = section.entries.filter((e) => !REMOVED_INTERNAL_EVENT_IDS.includes(e.id));
+      for (const e of section.entries) {
+        const idea = freshInternal.entries.find((f) => f.id === e.id);
+        if (!idea) continue;
+        if ((e.eventName || '').includes(' – ')) e.eventName = idea.eventName;
+        for (const k of ['pitch', 'format', 'coHost', 'coHostIncentive', 'poc', 'budget', 'goal', 'targetAudience']) {
+          if (!e[k]) e[k] = idea[k];
+        }
+      }
+    }
+  }
+
+  // Weekly metrics: event and co-hosting metrics instead of the recruiting ones (old values kept aside).
+  stored.retiredMetrics = stored.retiredMetrics || {};
+  const replaceMetrics = (key, freshSections) => (stored[key] || []).forEach((section) => {
+    if (!isRecruitingMetrics(section)) return;
+    stored.retiredMetrics[section.id] = section.metrics;
+    section.metrics = freshSections.find((f) => f.id === section.id)?.metrics || freshSections[0].metrics;
+  });
+  replaceMetrics('eventsNycFunnel', fresh.eventsNycFunnel);
+  replaceMetrics('eventsSfFunnel', fresh.eventsSfFunnel);
+  replaceMetrics('partnerships', fresh.partnerships);
+
+  // Lead Lists: Source Event column (and Event / Conference sources).
+  (stored.leadLists || []).forEach((section) => { section.fields = fresh.leadLists[0].fields; });
+
+  // External Conferences: drop the empty placeholder, add the three planned conferences.
+  const isEmptyPlaceholder = (c) => c.title === 'Conference Name'
+    && c.sections.every((s) => !s.entries.length) && !Object.values(c.summary || {}).some(Boolean);
+  stored.externalConferences = (stored.externalConferences || []).filter((c) => !isEmptyPlaceholder(c));
+  for (const conf of fresh.externalConferences) {
+    if (!stored.externalConferences.some((c) => c.id === conf.id)) stored.externalConferences.push(conf);
+  }
 }
 
 function save(d) {

@@ -1,7 +1,7 @@
 import { getData, commit } from '../store.js';
 import { uid, escapeHtml } from '../utils.js';
 import { notesBoxHtml } from '../notesBox.js';
-import { newConference } from '../seed.js';
+import { newConference, SCORECARD_NOTE } from '../fieldMarketing.js';
 import { renderSection, wireEvents } from './tableSections.js';
 
 const SUMMARY_FIELDS = [
@@ -10,15 +10,22 @@ const SUMMARY_FIELDS = [
   { key: 'targetGoal', label: 'Extend Target Goal', placeholder: 'What Extend wants to get out of it, e.g. meetings booked, leads, pipeline.' },
 ];
 
-/* Each conference is a titled group holding its Pre-Conference, Logistics and Post-Conference tables. */
+/* A scorecard to choose conferences, then one group per planned conference with its five stages:
+   prep, booth build & shipping, staffing, run-of-show and follow-up. */
 export function renderExternalConferences(container) {
-  const conferences = getData().externalConferences;
+  const data = getData();
+  const conferences = data.externalConferences;
+  const scorecard = data.conferenceScorecard;
   const rerender = () => renderExternalConferences(container);
 
   container.innerHTML = `
     ${notesBoxHtml('externalConferences')}
-    <div class="toolbar">
-      <div class="page-title" style="margin:0;">External Conferences</div>
+    <div class="page-title">External Conferences</div>
+    <div id="conference-scorecard">
+      ${scorecard.map((s) => renderSection(s, { rowLabel: 'Add conference', fixedSections: true, showEmptyTable: true })).join('')}
+    </div>
+    <div class="toolbar" style="margin-top:28px;">
+      <div class="page-subtitle" style="margin:0;">Planned Conferences: End to End</div>
       <button class="btn btn-primary" id="add-conf-btn">+ Conference</button>
     </div>
     <div class="inline-add-form" id="add-conf-form" style="display:none;">
@@ -83,6 +90,9 @@ export function renderExternalConferences(container) {
   });
 
   wireEvents(document.getElementById('conference-groups'), conferences.flatMap((c) => c.sections), rerender);
+  wireEvents(document.getElementById('conference-scorecard'), scorecard, rerender);
+  // Explain how the score is worked out, under the scorecard title.
+  document.querySelector('#conf-scorecard .toolbar')?.insertAdjacentHTML('afterend', `<div class="section-note">${escapeHtml(SCORECARD_NOTE)}</div>`);
 }
 
 function renderConference(conf) {
