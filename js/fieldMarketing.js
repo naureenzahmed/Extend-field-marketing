@@ -7,6 +7,8 @@
 export const EVENT_FORMATS = ['Conference', 'Demo Day', 'Founder Dinner', 'Meetup / Talk', 'Hackathon / Build Night', 'Community Event'];
 
 const FORMAT_FIELD = { key: 'format', label: 'Format', type: 'select', options: ['', ...EVENT_FORMATS] };
+// Extend's own events are never conferences, so Internal Events has no Conference format (or group).
+const INTERNAL_FORMAT_FIELD = { ...FORMAT_FIELD, options: FORMAT_FIELD.options.filter((f) => f !== 'Conference') };
 const CO_HOST_FIELDS = [
   { key: 'coHost', label: 'Co-host', width: 150 },
   { key: 'coHostIncentive', label: 'Co-host Incentive', width: 300 },
@@ -37,7 +39,7 @@ export const EXTERNAL_EVENT_FIELDS = [
 export const INTERNAL_EVENT_FIELDS = [
   { key: 'eventName', label: 'Event Name', width: 230 },
   { key: 'pitch', label: 'One-line Pitch', width: 420 },
-  FORMAT_FIELD,
+  INTERNAL_FORMAT_FIELD,
   { key: 'date', label: 'Date', width: 140 },
   ...CO_HOST_FIELDS,
   { key: 'budget', label: 'Budget (est.)', width: 200 },
@@ -67,42 +69,33 @@ function idea(id, eventName, pitch, format, coHost, coHostIncentive, poc, budget
 
 // Co-hosts are suggestions from the Partnerships page; POCs are the role to reach, not a named person.
 export const SF_INTERNAL_EVENTS = [
-  idea('sf-int-1', 'Ocean Beach Bonfire', "Sunset bonfire at the Ocean Beach fire pits with s'mores and drinks: low-key founder bonding.", 'Community Event',
-    'Solo Founders', 'An in-person night for their members; shared sign-up list', 'Community lead', '$400 (firewood, s’mores, drinks)', '30 founders · 10 signups', 'Founders and friends'),
-  idea('sf-int-2', 'Bike to Sausalito', 'Group ride over the Golden Gate to Sausalito and back, with brunch at the turnaround.', 'Community Event',
-    'Mercury', 'Face time with early-stage founders who pick their bank', 'Community / events lead', '$600 (brunch, bike rentals)', '25 founders · 8 signups', 'Founders and operators'),
-  idea('sf-int-3', 'Cake Tasting at Dolores Park', 'Picnic cake tasting from local bakeries; founders vote on the winner.', 'Community Event',
-    'Corgi', 'Draws founders to their brand (and cafe); insurance conversations', 'Marketing lead', '$500 (cakes, picnic setup)', '40 attendees · 10 signups', 'Founders and operators'),
-  idea('sf-int-4', "Founders' Farmers Market at Dolores Park", 'Each founder brings a treat they made (cake, dim sum, etc.) to share and swap.', 'Community Event',
-    'PostHog', 'Founder and developer audience; quirky brand fit', 'Community lead', '$300 (permits, tables, signage)', '50 attendees · 15 signups', 'Founders'),
-  idea('sf-int-5', 'Canadian Founders Panel', 'Panel of Canadian founders building in SF: moving, raising and hiring across the border.', 'Meetup / Talk',
-    '1Password', 'Canadian-founded; reach and recruit Canadian talent in SF', 'Community / events lead', '$1,500 (venue, food)', '80 attendees · 20 signups · 4 meetings', 'Canadian founders and operators in SF'),
-  idea('sf-int-7', 'Founder Failure Night', 'Founders get 5 minutes each to tell the story of a time it went wrong, and what they learned.', 'Meetup / Talk',
-    'Retool', 'Founder audience; content for their community programs', 'Developer relations lead', '$1,000 (venue, food)', '60 attendees · 15 signups · 3 meetings', 'Founders'),
   idea('sf-int-8', 'Board Games + Late-Night Build', 'Board games early, then heads-down building until late, with demos at the end.', 'Hackathon / Build Night',
     'Supabase', 'Developers building on their stack; credits as prizes', 'Developer relations lead', '$1,200 (venue, food, prizes)', '40 builders · 15 signups · 3 meetings', 'Developers and technical founders'),
-  idea('sf-int-9', 'Startup Trivia / Game Show', 'Questions on tech history and famous pivots, with mixed teams of founders, operators and investors.', 'Community Event',
-    'Stripe', 'Brand moment with founders, operators and investors', 'Startup programs lead', '$1,500 (venue, prizes, host)', '80 attendees · 20 signups · 4 meetings', 'Mixed teams of founders, operators and investors'),
-  idea('sf-int-10', 'Live Product Teardown', "An expert critiques volunteer startups' landing pages and demos live, on the spot.", 'Meetup / Talk',
-    'Mintlify', 'Docs and landing-page critiques showcase their product', 'Marketing lead', '$800 (venue, food)', '60 attendees · 15 signups · 4 meetings', 'Founders and product teams'),
   idea('sf-int-11', 'Design Your Own Mechanical Keyboard', 'Build-your-own keyboard night with a wall of unique keycaps to customize with.', 'Hackathon / Build Night',
     'Vercel', 'Developer brand moment; splits the mid-size budget', 'Developer relations lead', '$3,000, split with co-host (kits, keycaps)', '30 builders · 12 signups · 3 meetings', 'Developers and technical founders'),
 ];
 
 export const NYC_INTERNAL_EVENTS = [
-  idea('nyc-int-1', 'Late-Night Comedy Night', 'Tech-roast style stage night: founders and tech people each do a 4–5 minute comedy bit.', 'Community Event',
-    'Ramp', 'NYC founder audience; brand moment', 'Brand / events lead', '$2,000 (venue, host, drinks)', '100 attendees · 25 signups · 5 meetings', 'Founders and people from the tech community'),
   idea('nyc-int-2', 'Raspberry Pi Night', 'Builders night: 3 hours building with Raspberry Pis (about $40 per unit on average), 1 hour of demos, 2 hours networking with berry pies.', 'Hackathon / Build Night',
     'Betaworks', 'Builder programming for their studio space', 'Programming / events lead', '$2,500 (40 Pis at ~$40, food, pies)', '40 builders · 15 signups · 4 meetings', 'Builders'),
-  idea('nyc-int-3', 'Jazz Jam Session', 'After-hours jam in a cafe (cheap venue, friendly setting) for people in tech who play instruments.', 'Community Event',
-    'Clay', 'Culture-forward NYC brand; operator audience', 'Community lead', '$800 (cafe buyout, drinks)', '35 attendees · 8 signups', 'People in tech who play instruments'),
-  idea('nyc-int-4', 'Video Game Olympics', 'Bring a laptop for 3 hours of competitive casual games; the winner takes home a game or credits.', 'Community Event',
-    'Arkadium', 'Show their games to a tech crowd; recruiting', 'Partnerships lead', '$1,500 (venue, prizes, food)', '60 attendees · 15 signups · 3 meetings', 'People in tech who are big gamers',
-    'Arkadium, Rockstar Games, Take-Two Interactive, Avalanche Studios Group'),
 ];
 
 // Internal event ids that were removed from the plan.
 export const REMOVED_INTERNAL_EVENT_IDS = ['sf-int-6']; // Dinner at the Computer History Museum (Mountain View)
+
+// Everything whose main audience isn't technical / software people (investors, enterprise buyers,
+// general founders and operators) is out of the plan.
+export const NON_TECHNICAL = {
+  events: [
+    'nyc-ext-4', 'nyc-ext-11', 'nyc-ext-12', 'sf-ext-1', 'sf-ext-2', 'sf-ext-3', 'sf-ext-8', 'sf-ext-11',
+    'sf-int-1', 'sf-int-2', 'sf-int-3', 'sf-int-4', 'sf-int-5', 'sf-int-7', 'sf-int-9', 'sf-int-10',
+    'nyc-int-1', 'nyc-int-3', 'nyc-int-4',
+  ],
+  scorecard: ['sc-5', 'sc-14'],
+  social: ['soc-5', 'soc-6', 'soc-7'],
+  tasks: ['rt-9', 'rt-10'],
+  milestones: ['ms-yc'],
+};
 
 /* Weekly metrics for Event Attendance and Partnerships (replacing recruiting metrics). */
 export function eventFunnelMetrics() {
@@ -154,7 +147,6 @@ export const SCORECARD_ROWS = [
   scored('sc-2', 'GitHub Universe 2026', 'San Francisco', 'Oct 28–29', '4,000', '2,800', '4', '15,000', '25', 'Booth', 'Go'),
   scored('sc-3', 'OWASP Global AppSec USA', 'San Francisco', 'Nov 2–6', '800', '600', '2', '3,000', '3', 'Attend only', 'No'),
   scored('sc-4', 'AI Engineer Code Summit 2026', 'San Francisco', 'Nov 10–12', '1,500', '1,280', '5', '20,000', '40', 'Booth + talk', 'Go'),
-  scored('sc-5', 'Cerebral Valley AI Summit', 'San Francisco', 'Nov 12', '350', '40', '4', '2,600', '8', 'Attend only', 'Maybe'),
   scored('sc-6', 'QCon San Francisco 2026', 'San Francisco', 'Nov 16–18', '1,500', '1,280', '3', '6,000', '6', 'Attend only', 'No'),
   scored('sc-7', 'Microsoft Ignite 2026', 'San Francisco', 'Nov 17–20', '15,000', '5,250', '3', '7,000', '8', 'Attend only', 'No'),
   scored('sc-8', 'AI Native DevCon New York 2026', 'New York', 'Nov 2–4', '', '', '4', '4,000', '10', 'Attend only', 'Maybe'),
@@ -163,7 +155,6 @@ export const SCORECARD_ROWS = [
   scored('sc-11', 'AI Coding Summit NYC', 'New York', 'Nov 16–17', '', '', '3', '2,500', '6', 'Attend only', 'No'),
   scored('sc-12', 'React Summit US 2026', 'Jersey City (NYC area)', 'Nov 17', '800', '760', '2', '2,000', '3', 'Attend only', 'No'),
   scored('sc-13', 'AI Dev NYC 2026 (DeepLearning.AI)', 'New York', 'Nov 30 – Dec 1', '2,500', '2,250', '5', '12,000', '30', 'Booth', 'Go'),
-  scored('sc-14', 'The AI Summit New York', 'New York', 'Dec 9–10', '5,000', '1,250', '4', '3,000', '12', 'Side event', 'Maybe'),
 ];
 
 /* ---------- External Conferences: planned conferences, end to end ---------- */
@@ -396,12 +387,6 @@ export const SOCIAL_PLAN = [
     'Booth demos; happy hour photos; one customer quote on video', 'Addison (Extend), Jing (personal)'),
   social('soc-4', 'Raspberry Pi Night (NYC)', '', 'X, Instagram, LinkedIn', 'Three hours, forty Raspberry Pis, one hour of demos. And pie.', '',
     'Build timelapse; demo highlight reel; co-host shout-out with Betaworks', 'Sydney (Extend), co-host account'),
-  social('soc-5', 'Live Product Teardown (SF)', '', 'X, LinkedIn', 'Volunteer your landing page for a live, kind-but-honest teardown.', '',
-    'Before/after clips of each teardown; tips thread', 'Sasha (Extend), Mintlify'),
-  social('soc-6', 'Founder Failure Night (SF)', '', 'X, LinkedIn', 'Five minutes, one story about when it went wrong. Founders only on stage.', '',
-    'Short story clips (with consent); quote cards', 'Mike (Extend), Retool'),
-  social('soc-7', 'Video Game Olympics (NYC)', '', 'X, Instagram, TikTok', 'Three hours, one bracket, one champion. Bring your laptop.', '',
-    'Bracket updates; final-round reactions; winner interview', 'Aiden (Extend), Arkadium'),
 ];
 
 /* ---------- Roadmap (opened from the header target) ---------- */
@@ -439,10 +424,6 @@ export const ROADMAP_TASKS = [
     'Booth, meetings, side event.', '30 meetings target.', ['rt-6']),
   task('rt-8', 'Raspberry Pi Night with Betaworks', 'init-2', 'team-b', 'p10', '2026-10-27', '2026-11-14', 'Ready',
     'Lock date and venue with Betaworks, order 40 Pis, open Luma.', 'Builder audience in NYC; strong content moment.'),
-  task('rt-9', 'Live Product Teardown with Mintlify', 'init-2', 'team-b', 'p14', '2026-11-02', '2026-11-20', 'Backlog',
-    'Pitch Mintlify, pick an expert, recruit volunteer startups.', 'Founder audience in SF.'),
-  task('rt-10', 'YC F26 Demo Day side event (Dec 2)', 'init-2', 'team-b', 'p18', '2026-11-10', '2026-12-02', 'Backlog',
-    'Founder dinner around YC Demo Day for batch founders.', 'Puts Extend in front of every new YC company.'),
   task('rt-11', 'Teaser + recap posts for GitHub Universe', 'init-3', 'team-c', 'p2', '2026-10-21', '2026-10-31', 'In progress',
     'Teaser Oct 21, live clips during, recap Oct 31.', 'Turns one booth into reach beyond the hall.'),
   task('rt-12', 'Event recap template + posting cadence', 'init-3', 'team-c', 'p2', '2026-10-20', '2026-10-30', 'Ready',
@@ -457,7 +438,6 @@ export const ROADMAP_MILESTONES = [
   { id: 'ms-github', date: '2026-10-28', title: 'GitHub Universe', teamId: 'team-a' },
   { id: 'ms-aie', date: '2026-11-10', title: 'AI Engineer Code Summit', teamId: 'team-b' },
   { id: 'ms-aidev', date: '2026-11-30', title: 'AI Dev NYC', teamId: 'team-c' },
-  { id: 'ms-yc', date: '2026-12-02', title: 'YC F26 Demo Day', teamId: 'team-b' },
 ];
 
 const kr = (id, title, target, deadline, assigneeIds) => ({ id, title, current: 0, target, deadline, assigneeIds });

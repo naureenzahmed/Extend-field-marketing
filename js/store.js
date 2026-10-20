@@ -1,4 +1,4 @@
-import { EXTERNAL_EVENT_FORMATS, REMOVED_INTERNAL_EVENT_IDS, HEAD_OF_CONTENT } from './fieldMarketing.js';
+import { EXTERNAL_EVENT_FORMATS, REMOVED_INTERNAL_EVENT_IDS, HEAD_OF_CONTENT, NON_TECHNICAL } from './fieldMarketing.js';
 import { seedData, seedInspiration, buildPartnershipSections, mergeCityCompanies, addPartnerAdditions, partnershipSection, applyPartnerHQ } from './seed.js';
 
 const STORAGE_KEY = 'extendFieldMarketingData.v1';
@@ -208,6 +208,8 @@ function load() {
       // fieldMarketingVersion 1: field-marketing overhaul. Keeps everything typed so far; replaces template content.
       //   fieldMarketingVersion 2: Bo is head of all content (only where the owner hasn't been changed).
       //   fieldMarketingVersion 3: follow-up steps on the conference page have no owner names.
+      //   fieldMarketingVersion 4: events, conferences and plans for non-technical audiences are removed,
+      //   and Internal Events drops the Conference format.
       const fmVersion = stored.fieldMarketingVersion || 0;
       if (fmVersion < fresh.fieldMarketingVersion) {
         if (fmVersion < 1) upgradeToFieldMarketing(stored, fresh);
@@ -216,6 +218,12 @@ function load() {
           (stored.externalConferences || []).forEach((c) => c.sections
             .filter((s) => s.id.endsWith('-post'))
             .forEach((s) => s.entries.forEach((row) => { row.owner = ''; })));
+        }
+        if (fmVersion < 4) {
+          removeNonTechnical(stored);
+          for (const key of ['eventsNyc', 'eventsSf']) {
+            (stored[key] || []).filter((s) => s.id.endsWith('-internal-events')).forEach((s) => { s.fields = fresh[key][1].fields; });
+          }
         }
         stored.fieldMarketingVersion = fresh.fieldMarketingVersion;
         changed = true;
@@ -245,6 +253,17 @@ function isRecruitingMetrics(section) {
 
 function isPlaceholderTask(t) {
   return /^Task \d+$/.test(t.title) && /^Example task description/.test(t.description || '');
+}
+
+function removeNonTechnical(stored) {
+  const keep = (ids) => (row) => !ids.includes(row.id);
+  for (const key of ['eventsNyc', 'eventsSf']) {
+    (stored[key] || []).forEach((s) => { s.entries = s.entries.filter(keep(NON_TECHNICAL.events)); });
+  }
+  (stored.conferenceScorecard || []).forEach((s) => { s.entries = s.entries.filter(keep(NON_TECHNICAL.scorecard)); });
+  (stored.socialPlan || []).forEach((s) => { s.entries = s.entries.filter(keep(NON_TECHNICAL.social)); });
+  stored.tasks = (stored.tasks || []).filter(keep(NON_TECHNICAL.tasks));
+  stored.milestones = (stored.milestones || []).filter(keep(NON_TECHNICAL.milestones));
 }
 
 function makeHeadOfContent(stored, fresh) {

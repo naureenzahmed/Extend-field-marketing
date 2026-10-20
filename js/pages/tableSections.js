@@ -76,7 +76,10 @@ export function renderSection(s, opts) {
 
 /* opts.groupBy = { key, groups }: one sub-table per group, plus "Unassigned" for rows outside the groups. */
 function groupedTablesHtml(s, opts, addLabel) {
-  const { key, groups } = opts.groupBy;
+  const { key } = opts.groupBy;
+  // A section whose group column offers fewer choices (e.g. Internal Events) only shows those groups.
+  const groupField = s.fields.find((f) => f.key === key);
+  const groups = groupField?.options ? opts.groupBy.groups.filter((g) => groupField.options.includes(g)) : opts.groupBy.groups;
   const unassigned = s.entries.filter((e) => !groups.includes(e[key]));
   const parts = [
     ...(unassigned.length ? [{ name: UNASSIGNED, rows: unassigned }] : []),

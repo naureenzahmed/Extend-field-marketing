@@ -1,7 +1,7 @@
 import { NYC_EXTERNAL_EVENTS, SF_EXTERNAL_EVENTS } from './eventImports.js';
 import {
   EXTERNAL_EVENT_FIELDS, INTERNAL_EVENT_FIELDS, EXTERNAL_EVENT_FORMATS, NYC_INTERNAL_EVENTS, SF_INTERNAL_EVENTS,
-  eventFunnelMetrics, partnershipFunnelMetrics, newConference, PLANNED_CONFERENCES, SCORECARD_FIELDS, SCORECARD_ROWS,
+  eventFunnelMetrics, partnershipFunnelMetrics, NON_TECHNICAL, newConference, PLANNED_CONFERENCES, SCORECARD_FIELDS, SCORECARD_ROWS,
   SOCIAL_FIELDS, SOCIAL_PLAN, COMPANY_GOAL, ROADMAP_INITIATIVES, ROADMAP_TASKS, ROADMAP_MILESTONES, ROADMAP_OKRS,
 } from './fieldMarketing.js';
 
@@ -45,7 +45,7 @@ function renameSection(pageSections, id, title) {
 function withEvents(pageSections, external, internal = []) {
   const blank = (fields) => Object.fromEntries(fields.filter((f) => f.type !== 'computed').map((f) => [f.key, '']));
   pageSections[0].fields = EXTERNAL_EVENT_FIELDS;
-  pageSections[0].entries = external.map((e) => ({ ...blank(EXTERNAL_EVENT_FIELDS), ...e, format: EXTERNAL_EVENT_FORMATS[e.id] || '' }));
+  pageSections[0].entries = external.filter((e) => !NON_TECHNICAL.events.includes(e.id)).map((e) => ({ ...blank(EXTERNAL_EVENT_FIELDS), ...e, format: EXTERNAL_EVENT_FORMATS[e.id] || '' }));
   pageSections[1].fields = INTERNAL_EVENT_FIELDS;
   pageSections[1].entries = internal.map((e) => ({ ...blank(INTERNAL_EVENT_FIELDS), ...e }));
   return pageSections;
@@ -348,7 +348,7 @@ export const PEOPLE = TEAM_NAMES.map((name, i) => ({
 
 export function seedData() {
   return {
-    fieldMarketingVersion: 3,
+    fieldMarketingVersion: 4,
     companyGoal: { ...COMPANY_GOAL },
     schemaVersions: { events: 3, conferences: 4, leads: 2 },
     peopleVersion: 1,
