@@ -1,4 +1,4 @@
-import { EXTERNAL_EVENT_FORMATS, REMOVED_INTERNAL_EVENT_IDS } from './fieldMarketing.js';
+import { EXTERNAL_EVENT_FORMATS, REMOVED_INTERNAL_EVENT_IDS, HEAD_OF_CONTENT } from './fieldMarketing.js';
 import { seedData, seedInspiration, buildPartnershipSections, mergeCityCompanies, addPartnerAdditions, partnershipSection, applyPartnerHQ } from './seed.js';
 
 const STORAGE_KEY = 'extendFieldMarketingData.v1';
@@ -206,8 +206,11 @@ function load() {
         changed = true;
       }
       // fieldMarketingVersion 1: field-marketing overhaul. Keeps everything typed so far; replaces template content.
-      if ((stored.fieldMarketingVersion || 0) < fresh.fieldMarketingVersion) {
-        upgradeToFieldMarketing(stored, fresh);
+      //   fieldMarketingVersion 2: Bo is head of all content (only where the owner hasn't been changed).
+      const fmVersion = stored.fieldMarketingVersion || 0;
+      if (fmVersion < fresh.fieldMarketingVersion) {
+        if (fmVersion < 1) upgradeToFieldMarketing(stored, fresh);
+        if (fmVersion === 1) makeHeadOfContent(stored, fresh);
         stored.fieldMarketingVersion = fresh.fieldMarketingVersion;
         changed = true;
       }
@@ -236,6 +239,32 @@ function isRecruitingMetrics(section) {
 
 function isPlaceholderTask(t) {
   return /^Task \d+$/.test(t.title) && /^Example task description/.test(t.description || '');
+}
+
+function makeHeadOfContent(stored, fresh) {
+  const seededContentPeople = ['Shruthi', 'Devin', 'Addison'];
+  const isContentRow = (r) => r.workstream === 'Social' || r.item === 'Swag'
+    || /^Post a booth clip/.test(r.activity || '') || /^Recap post/.test(r.step || '');
+  for (const conf of stored.externalConferences || []) {
+    for (const section of conf.sections) {
+      for (const row of section.entries) {
+        if (!isContentRow(row) || !seededContentPeople.includes(row.owner)) continue;
+        if (row.activity && row.notes === 'See Social & Content') row.notes = `Filmed on site by ${row.owner}; see Social & Content`;
+        row.owner = HEAD_OF_CONTENT;
+      }
+    }
+  }
+  for (const section of stored.socialPlan || []) {
+    if (section.id !== 'social-events') continue;
+    section.fields = fresh.socialPlan[0].fields;
+    section.entries.forEach((row) => { if (!row.contentOwner) row.contentOwner = HEAD_OF_CONTENT; });
+  }
+  const bo = stored.people?.find((p) => p.name === HEAD_OF_CONTENT)?.id;
+  (stored.tasks || []).forEach((t) => {
+    if (['rt-11', 'rt-12'].includes(t.id) && ['p11', 'p15'].includes(t.assigneeId)) t.assigneeId = bo;
+  });
+  const kr = stored.okrs?.find((o) => o.id === 'okr-3')?.keyResults.find((k) => k.id === 'kr-3-1');
+  if (kr && kr.assigneeIds.join() === 'p11,p15') kr.assigneeIds = [bo];
 }
 
 function upgradeToFieldMarketing(stored, fresh) {

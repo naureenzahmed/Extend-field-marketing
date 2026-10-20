@@ -348,7 +348,7 @@ export const PEOPLE = TEAM_NAMES.map((name, i) => ({
 
 export function seedData() {
   return {
-    fieldMarketingVersion: 1,
+    fieldMarketingVersion: 2,
     companyGoal: { ...COMPANY_GOAL },
     schemaVersions: { events: 3, conferences: 4, leads: 2 },
     peopleVersion: 1,

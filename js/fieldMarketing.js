@@ -170,6 +170,9 @@ export const SCORECARD_ROWS = [
 
 const STATUS = ['', 'Not Started', 'In Progress', 'Done'];
 
+// Owns all content: social teasers, swag, live clips and recap posts, at every event.
+export const HEAD_OF_CONTENT = 'Bo';
+
 export const CONFERENCE_STAGES = [
   {
     key: 'pre', title: '1 · Pre-Conference Prep',
@@ -270,12 +273,12 @@ export function newConference(id, title, plan = null) {
 function plannedConference({ id, title, start, owners, summary, preOwners, booth, shipBy, sideEvent, talk, staff }) {
   const [lead, meetings, content, demo] = owners;
   const pre = PRE_TEMPLATE.map(([workstream, task], i) => ({
-    workstream, task, owner: preOwners[i] || lead, dueDate: day(start, [-14, -12, -10, -10, -3, -5, -4, -7][i]), status: 'Not Started',
+    workstream, task, owner: workstream === 'Social' ? HEAD_OF_CONTENT : preOwners[i] || lead, dueDate: day(start, [-14, -12, -10, -10, -3, -5, -4, -7][i]), status: 'Not Started',
   }));
   const logistics = [
     { item: 'Booth kit', details: booth, owner: lead, dueDate: day(start, -10), cost: '$6,000', status: 'Not Started' },
     { item: 'Ship booth kit to venue', details: `Ship by ${shipBy}; keep tracking number in the checklist`, owner: lead, dueDate: day(start, -7), cost: '$1,200', status: 'Not Started' },
-    { item: 'Swag', details: 'Small, useful and on-brand: notebooks printed with parsed-document art, stickers', owner: content, dueDate: day(start, -9), cost: '$1,500', status: 'Not Started' },
+    { item: 'Swag', details: 'Small, useful and on-brand: notebooks printed with parsed-document art, stickers', owner: HEAD_OF_CONTENT, dueDate: day(start, -9), cost: '$1,500', status: 'Not Started' },
     { item: 'Power, wifi and lead scanners', details: 'Order from the venue; test on build day', owner: demo, dueDate: day(start, -7), cost: '$800', status: 'Not Started' },
     { item: 'Travel', details: 'Flights / trains for the staffed team', owner: lead, dueDate: day(start, -14), cost: '$2,000', status: 'Not Started' },
     { item: 'Hotel', details: 'Rooms near the venue for all event nights', owner: lead, dueDate: day(start, -14), cost: '$2,500', status: 'Not Started' },
@@ -287,12 +290,12 @@ function plannedConference({ id, title, start, owners, summary, preOwners, booth
     { time: '10:00–12:00', activity: 'Pre-booked meetings block', owner: meetings, location: 'Meeting area', notes: '' },
     { time: '12:30', activity: 'Staggered lunch rotation', owner: lead, location: 'Booth', notes: 'Booth never below 2 people' },
     { time: '13:00', activity: talk || 'Live demo: parse any document in 60 seconds', owner: demo, location: talk ? 'Main stage' : 'Booth', notes: '' },
-    { time: '15:00', activity: 'Post a booth clip and day-one highlight', owner: content, location: 'Booth', notes: 'See Social & Content' },
+    { time: '15:00', activity: 'Post a booth clip and day-one highlight', owner: HEAD_OF_CONTENT, location: 'Booth', notes: `Filmed on site by ${content}; see Social & Content` },
     { time: '17:00', activity: 'Doors close; upload scans to Lead Lists', owner: meetings, location: 'Booth', notes: '' },
     { time: '18:30', activity: sideEvent, owner: lead, location: 'Nearby venue', notes: '' },
   ];
   const post = POST_TEMPLATE.map(([step, timing], i) => ({
-    step, timing, owner: [meetings, meetings, content, meetings, lead, lead][i], dueDate: day(start, [0, 1, 2, 3, 7, 14][i] + 1), status: 'Not Started',
+    step, timing, owner: [meetings, meetings, HEAD_OF_CONTENT, meetings, lead, lead][i], dueDate: day(start, [0, 1, 2, 3, 7, 14][i] + 1), status: 'Not Started',
   }));
   return { id, title, plan: { summary, rows: { pre, logistics, staffing: staff, runOfShow, post } } };
 }
@@ -372,6 +375,7 @@ export const SOCIAL_FIELDS = [
   { key: 'teaserDate', label: 'Teaser Date', type: 'date' },
   { key: 'lumaPage', label: 'Luma Page' },
   { key: 'contentToFilm', label: 'Content to Film', width: 340 },
+  { key: 'contentOwner', label: 'Content Owner' },
   { key: 'whoPosts', label: 'Who Posts', width: 200 },
   { key: 'postLinks', label: 'Post Links' },
   { key: 'impressions', label: 'Impressions' },
@@ -380,7 +384,7 @@ export const SOCIAL_FIELDS = [
 ];
 
 function social(id, eventName, date, channels, teaser, teaserDate, contentToFilm, whoPosts) {
-  return { id, eventName, date, channels, teaser, teaserDate, lumaPage: '', contentToFilm, whoPosts, postLinks: '', impressions: '', follows: '', signupsFromPosts: '' };
+  return { id, eventName, date, channels, teaser, teaserDate, lumaPage: '', contentToFilm, contentOwner: HEAD_OF_CONTENT, whoPosts, postLinks: '', impressions: '', follows: '', signupsFromPosts: '' };
 }
 
 export const SOCIAL_PLAN = [
@@ -439,9 +443,9 @@ export const ROADMAP_TASKS = [
     'Pitch Mintlify, pick an expert, recruit volunteer startups.', 'Founder audience in SF.'),
   task('rt-10', 'YC F26 Demo Day side event (Dec 2)', 'init-2', 'team-b', 'p18', '2026-11-10', '2026-12-02', 'Backlog',
     'Founder dinner around YC Demo Day for batch founders.', 'Puts Extend in front of every new YC company.'),
-  task('rt-11', 'Teaser + recap posts for GitHub Universe', 'init-3', 'team-c', 'p11', '2026-10-21', '2026-10-31', 'In progress',
+  task('rt-11', 'Teaser + recap posts for GitHub Universe', 'init-3', 'team-c', 'p2', '2026-10-21', '2026-10-31', 'In progress',
     'Teaser Oct 21, live clips during, recap Oct 31.', 'Turns one booth into reach beyond the hall.'),
-  task('rt-12', 'Event recap template + posting cadence', 'init-3', 'team-c', 'p15', '2026-10-20', '2026-10-30', 'Ready',
+  task('rt-12', 'Event recap template + posting cadence', 'init-3', 'team-c', 'p2', '2026-10-20', '2026-10-30', 'Ready',
     'Reusable recap post, clip checklist, and who posts what.', 'Every event gets posted the same way.'),
   task('rt-13', 'Pitch top 10 co-hosts', 'init-4', 'team-d', 'p4', '2026-10-20', '2026-11-06', 'In progress',
     'Use Partnerships and the Co-host columns on the events pages.', 'Co-hosting halves cost and doubles reach.'),
@@ -476,7 +480,7 @@ export const ROADMAP_OKRS = [
   },
   {
     id: 'okr-3', objective: 'Make every event visible online', teamId: 'team-c',
-    keyResults: [kr('kr-3-1', 'Event post impressions (thousands)', 100, '2026-12-31', ['p11', 'p15'])],
+    keyResults: [kr('kr-3-1', 'Event post impressions (thousands)', 100, '2026-12-31', ['p2'])],
   },
   {
     id: 'okr-4', objective: 'Co-host with partners', teamId: 'team-d',
