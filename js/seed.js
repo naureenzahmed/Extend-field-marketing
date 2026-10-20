@@ -392,25 +392,21 @@ function seedPartnerships() {
 /* ---------- Roadmap (opened from the header target) ---------- */
 
 export const TEAMS = [
-  { id: 'team-a', name: 'Team A', color: '#6c8cff' },
-  { id: 'team-b', name: 'Team B', color: '#ef6f6c' },
-  { id: 'team-c', name: 'Team C', color: '#57c785' },
+  { id: 'team-a', name: 'Conference A', color: '#6c8cff' },
+  { id: 'team-b', name: 'Conference B', color: '#ef6f6c' },
+  { id: 'team-c', name: 'Conference C', color: '#57c785' },
+  { id: 'team-d', name: 'Conference D', color: '#f2994a' },
 ];
 
-export const PEOPLE = [
-  { id: 'p1', name: 'Alex', role: 'Engineer', teamId: 'team-a' },
-  { id: 'p2', name: 'Sam', role: 'Engineer', teamId: 'team-a' },
-  { id: 'p3', name: 'Taylor', role: 'Engineer', teamId: 'team-a' },
-  { id: 'p4', name: 'Jordan', role: 'Product Manager', teamId: 'team-a' },
-  { id: 'p5', name: 'Riley', role: 'Designer', teamId: 'team-a' },
-  { id: 'p6', name: 'Casey', role: 'Product Manager', teamId: 'team-b' },
-  { id: 'p7', name: 'Morgan', role: 'Designer', teamId: 'team-b' },
-  { id: 'p8', name: 'Drew', role: 'Engineer', teamId: 'team-b' },
-  { id: 'p9', name: 'Blake', role: 'Engineer', teamId: 'team-b' },
-  { id: 'p10', name: 'Quinn', role: 'Product Manager', teamId: 'team-c' },
-  { id: 'p11', name: 'Sage', role: 'Designer', teamId: 'team-c' },
-  { id: 'p12', name: 'Reese', role: 'Engineer', teamId: 'team-c' },
+// Extend team, dealt round-robin across the conferences.
+const TEAM_NAMES = [
+  'Andrew', 'Bo', 'Jing', 'Sydney', 'Sophia', 'Victor', 'Scott', 'Sasha', 'James', 'Harvey', 'Addison',
+  'Mike', 'Shruthi', 'Devin', 'Matthew', 'Aiden', 'Joseph', 'Jack', 'Joon', 'Veerpartap', 'Richard',
 ];
+
+export const PEOPLE = TEAM_NAMES.map((name, i) => ({
+  id: `p${i + 1}`, name, role: '', teamId: TEAMS[i % TEAMS.length].id,
+}));
 
 export const INITIATIVES = [
   { id: 'init-1', name: 'Initiative 1', teamId: 'team-a', goalLabel: 'Reach target', current: 0, target: 100, unit: '%' },
@@ -497,6 +493,7 @@ export function seedData() {
   return {
     companyGoal: { title: 'EoY target', current: 0, target: 100, unit: '%', targetDate: `${year}-12-31` },
     schemaVersions: { events: 3, conferences: 4, leads: 2 },
+    peopleVersion: 1,
     teams: TEAMS,
     people: PEOPLE,
     initiatives: INITIATIVES,

@@ -196,6 +196,14 @@ function load() {
         stored.partnershipsVersion = fresh.partnershipsVersion;
         changed = true;
       }
+      // peopleVersion 1: teams become Conference A-D and people become the Extend team. Ids p1-p12 are
+      // kept, so tasks and key results stay assigned (now to the person with that id).
+      if ((stored.peopleVersion || 0) < fresh.peopleVersion) {
+        stored.teams = fresh.teams;
+        stored.people = fresh.people;
+        stored.peopleVersion = fresh.peopleVersion;
+        changed = true;
+      }
       // Backfill any keys added to the seed after this data was first saved.
       for (const key of Object.keys(fresh)) {
         if (!(key in stored)) { stored[key] = fresh[key]; changed = true; }

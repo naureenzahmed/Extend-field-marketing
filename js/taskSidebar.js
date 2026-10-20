@@ -91,7 +91,7 @@ function render(taskId) {
           <div class="ts-field-label">Assignee</div>
           <select id="ts-assignee">
             <option value="">Unassigned</option>
-            ${data.people.map((p) => `<option value="${p.id}" ${p.id === task.assigneeId ? 'selected' : ''}>${p.name} — ${p.role}</option>`).join('')}
+            ${data.people.map((p) => `<option value="${p.id}" ${p.id === task.assigneeId ? 'selected' : ''}>${p.name}${teamName(data, p)}</option>`).join('')}
           </select>
         </div>
 
@@ -320,4 +320,9 @@ function wireEvents(task) {
     commit();
     render(task.id);
   });
+}
+
+function teamName(data, person) {
+  const team = data.teams.find((t) => t.id === person.teamId);
+  return team ? ` — ${team.name}` : '';
 }
