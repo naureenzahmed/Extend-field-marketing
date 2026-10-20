@@ -243,6 +243,8 @@ function load() {
       //   fieldMarketingVersion 7: Social & Content gains Posting Period (the week before each event).
       //   fieldMarketingVersion 8: Anti Roch and Wiz leave Partnerships; External Conferences notes say the
       //   numbers are estimates.
+      //   fieldMarketingVersion 9: the planned conferences come off External Conferences (kept aside in
+      //   retiredConferences); only the scorecard remains.
       const fmVersion = stored.fieldMarketingVersion || 0;
       if (fmVersion < fresh.fieldMarketingVersion) {
         if (fmVersion < 1) upgradeToFieldMarketing(stored, fresh);
@@ -293,6 +295,10 @@ function load() {
           (stored.partnerships || []).forEach((s) => { s.entities = (s.entities || []).filter((e) => !REMOVED_PARTNERS.includes(e.name)); });
           stored.pageNotes = stored.pageNotes || {};
           if (!stored.pageNotes.externalConferences) stored.pageNotes.externalConferences = ESTIMATES_NOTE;
+        }
+        if (fmVersion < 9 && stored.externalConferences?.length) {
+          stored.retiredConferences = [...(stored.retiredConferences || []), ...stored.externalConferences];
+          stored.externalConferences = [];
         }
         stored.fieldMarketingVersion = fresh.fieldMarketingVersion;
         changed = true;

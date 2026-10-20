@@ -25,7 +25,7 @@ const PAGES = {
   home: { label: 'Home', render: (c) => renderCover(c, PAGES) },
   documentation: { label: 'Documentation', dataKey: 'docs', render: renderDocumentation },
   leadLists: { label: 'Lead Lists', dataKey: 'leadLists', render: tablePage('leadLists', 'Lead Lists', LEAD_FIELDS, 'Add lead', { datalists: { 'event-names': eventNames } }) },
-  externalConferences: { label: 'External Conferences', dataKey: 'externalConferences', render: renderExternalConferences },
+  externalConferences: { label: 'External Conferences', dataKey: 'conferenceScorecard', render: renderExternalConferences },
   eventsNyc: { label: 'Events NYC', dataKey: 'eventsNyc', extraDataKey: 'eventsNycFunnel', render: tablePage('eventsNyc', 'Events NYC', EXTERNAL_EVENT_FIELDS, 'Add event', { showEmptyTable: true, trackerKey: 'eventsNycFunnel', groupBy: BY_FORMAT }) },
   eventsSf: { label: 'Events SF', dataKey: 'eventsSf', extraDataKey: 'eventsSfFunnel', render: tablePage('eventsSf', 'Events SF', EXTERNAL_EVENT_FIELDS, 'Add event', { showEmptyTable: true, trackerKey: 'eventsSfFunnel', groupBy: BY_FORMAT }) },
   partnerships: { label: 'Partnerships', dataKey: 'partnerships', render: (c) => renderPartnerships(c, { title: 'Partnerships' }) },

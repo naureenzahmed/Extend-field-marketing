@@ -1,7 +1,7 @@
 import { NYC_EXTERNAL_EVENTS, SF_EXTERNAL_EVENTS } from './eventImports.js';
 import {
   EXTERNAL_EVENT_FIELDS, INTERNAL_EVENT_FIELDS, EXTERNAL_EVENT_FORMATS, NYC_INTERNAL_EVENTS, SF_INTERNAL_EVENTS,
-  eventFunnelMetrics, partnershipFunnelMetrics, NON_TECHNICAL, newConference, PLANNED_CONFERENCES, SCORECARD_FIELDS, SCORECARD_ROWS,
+  eventFunnelMetrics, partnershipFunnelMetrics, NON_TECHNICAL, SCORECARD_FIELDS, SCORECARD_ROWS,
   SOCIAL_FIELDS, SOCIAL_PLAN, COMPANY_GOAL, ROADMAP_INITIATIVES, ROADMAP_TASKS, ROADMAP_MILESTONES, ROADMAP_OKRS,
 } from './fieldMarketing.js';
 
@@ -378,7 +378,7 @@ export const REMOVED_PARTNERS = ['Anti Roch', 'Wiz (being acquired by Google)'];
 
 export function seedData() {
   return {
-    fieldMarketingVersion: 8,
+    fieldMarketingVersion: 9,
     companyGoal: { ...COMPANY_GOAL },
     schemaVersions: { events: 3, conferences: 4, leads: 2 },
     peopleVersion: 1,
@@ -395,7 +395,7 @@ export function seedData() {
     titlesVersion: 1,
     leadLists: renameSection(sections('leads', ['Conference Attendee Lists', 'Event RSVPs', 'Target Accounts'], LEAD_FIELDS), 'leads-target-accounts', 'Target Accounts with Interaction'),
     conferenceScorecard: [{ id: 'conf-scorecard', title: 'Conference Scorecard', fields: SCORECARD_FIELDS, entries: SCORECARD_ROWS }],
-    externalConferences: PLANNED_CONFERENCES.map((c) => newConference(c.id, c.title, c.plan)),
+    externalConferences: [],
     socialPlan: [{ id: 'social-events', title: 'Event Social Plan', fields: SOCIAL_FIELDS, entries: SOCIAL_PLAN }],
     eventsImportVersion: 4,
     industryVersion: 1,

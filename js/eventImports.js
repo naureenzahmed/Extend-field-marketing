@@ -31,5 +31,4 @@ export const SF_EXTERNAL_EVENTS = [
   importedEvent("sf-ext-8", "Cerebral Valley AI Summit", "Nov 12", "350", "~50% venture-backed AI founders, ~33% investors, plus media/execs"),
   importedEvent("sf-ext-9", "QCon San Francisco 2026", "Nov 16–18 (+ training Nov 19–20)", "1,500", "Senior engineers, architects, eng leaders; 12 tracks incl. AI engineering"),
   importedEvent("sf-ext-10", "Microsoft Ignite 2026", "Nov 17–20 (pre-day Nov 16)", "15,000", "IT pros, cloud architects, developers: Azure, Copilot, agents, security"),
-  importedEvent("sf-ext-11", "YC Fall 2026 Demo Day", "Dec 2", "1,500", "Y Combinator F26 batch pitches to investors and press"),
 ];
