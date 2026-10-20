@@ -94,6 +94,7 @@ function load() {
       //   eventsImportVersion 1: Date becomes a text column; External Events (NYC, SF) from the SF/NYC spreadsheet.
       //   eventsImportVersion 2: SF Internal Events ideas.
       //   eventsImportVersion 3: NYC Internal Events ideas, plus two more for SF.
+      //   eventsImportVersion 4: Video Game Olympics moves from SF to NYC; Raspberry Pi Night cost corrected.
       const importVersion = stored.eventsImportVersion || 0;
       if (importVersion < fresh.eventsImportVersion) {
         const addMissing = (key, index) => {
@@ -112,6 +113,18 @@ function load() {
         }
         if (importVersion < 2) addMissing('eventsSf', 1);
         if (importVersion < 3) { addMissing('eventsNyc', 1); addMissing('eventsSf', 1); }
+        if (importVersion < 4) {
+          const isVideoGames = (e) => e.eventName.startsWith('Video Game Olympics');
+          const sfInternal = stored.eventsSf.find((s) => s.id === 'sf-internal-events');
+          const nycInternal = stored.eventsNyc.find((s) => s.id === 'nyc-internal-events');
+          const moving = sfInternal?.entries.find(isVideoGames);
+          if (moving && nycInternal) {
+            sfInternal.entries = sfInternal.entries.filter((e) => e !== moving);
+            if (!nycInternal.entries.some(isVideoGames)) nycInternal.entries.push(moving);
+          }
+          const pi = nycInternal?.entries.find((e) => e.id === 'nyc-int-2');
+          if (pi) pi.eventName = pi.eventName.replace('low-cost Raspberry Pis ($0.80 per unit)', 'Raspberry Pis (about $40 per unit on average)');
+        }
         stored.eventsImportVersion = fresh.eventsImportVersion;
         changed = true;
       }

@@ -41,8 +41,9 @@ function internalEvent(id, eventName, targetAudience = '', companyName = '') {
 
 export const NYC_INTERNAL_EVENTS = [
   internalEvent('nyc-int-1', 'Late-Night Comedy Night – like Tech Roast shows, each person does a 4–5 minute comedy bit on stage', 'Founders and people from the tech community'),
-  internalEvent('nyc-int-2', 'Raspberry Pi Night – builders night with low-cost Raspberry Pis ($0.80 per unit): 3 hours building, 1 hour demos, 2 hours networking, with raspberry/berry pies served', 'Builders'),
+  internalEvent('nyc-int-2', 'Raspberry Pi Night – builders night with Raspberry Pis (about $40 per unit on average): 3 hours building, 1 hour demos, 2 hours networking, with raspberry/berry pies served', 'Builders'),
   internalEvent('nyc-int-3', 'Jazz Jam Session – in a cafe after hours (cheap venue, friendly setting) for people who want to jam together', 'People in tech who play instruments'),
+  internalEvent('nyc-int-4', 'Video Game Olympics – people bring laptops for 3 hours of gaming; the winner takes home a small video game or credits', 'People in tech who are big gamers', 'Arkadium, Rockstar Games, Take-Two Interactive, Avalanche Studios Group'),
 ];
 
 export const SF_INTERNAL_EVENTS = [
@@ -57,5 +58,4 @@ export const SF_INTERNAL_EVENTS = [
   internalEvent('sf-int-9', 'Startup Trivia / Game Show – questions on tech history and famous pivots', 'Mixed teams of founders, operators and investors'),
   internalEvent('sf-int-10', "Live Product Teardown – an expert critiques volunteer startups' landing pages or demos on the spot"),
   internalEvent('sf-int-11', 'Design Your Own Mechanical Keyboard – lots of unique keycaps so people can customize their keyboards; mid-budget, co-host splits the budget'),
-  internalEvent('sf-int-12', 'Video Game Olympics – people bring laptops for 3 hours of gaming; the winner takes home a small video game or credits', 'People in tech who are big gamers', 'Arkadium, Rockstar Games, Take-Two Interactive, Avalanche Studios Group'),
 ];

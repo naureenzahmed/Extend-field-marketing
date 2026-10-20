@@ -351,7 +351,7 @@ export function seedData() {
     titlesVersion: 1,
     leadLists: renameSection(sections('leads', ['Conference Attendee Lists', 'Event RSVPs', 'Target Accounts'], LEAD_FIELDS), 'leads-target-accounts', 'Target Accounts with Interaction'),
     externalConferences: [newConference('conf-1', 'Conference Name')],
-    eventsImportVersion: 3,
+    eventsImportVersion: 4,
     industryVersion: 1,
     eventsNyc: withEvents(sections('nyc', ['External Events', 'Internal Events'], EVENT_FIELDS), NYC_EXTERNAL_EVENTS, NYC_INTERNAL_EVENTS),
     eventsFunnelVersion: 7,
