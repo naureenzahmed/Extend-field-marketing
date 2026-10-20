@@ -26,7 +26,7 @@ export function renderRoadmap(container) {
         <div class="goal-icon"><img src="assets/extend-logo.jpg" alt="" /></div>
         <div>
           <div class="section-label">Roadmap</div>
-          <div class="goal-big">Road map</div>
+          <div class="goal-big">Roadmap</div>
         </div>
       </div>
       <div class="goal-days">

@@ -117,7 +117,7 @@ function seedWeeks() {
 
 /* Partnership Events companies per city. */
 const PARTNERS = {
-  nyc: ['Corgi', 'Verci', 'General Intelligence Company of New York', 'Anti Roch', 'Ramp', 'Clay', 'Brex', 'Betaworks', 'Rho'],
+  nyc: ['Corgi', 'Verci', 'General Intelligence Company of New York', 'Ramp', 'Clay', 'Brex', 'Betaworks', 'Rho'],
   sf: ['Corgi', 'Circleback', 'Gumloop', 'Mintlify', 'Vercel', 'Discord', 'Rentahuman AI', 'PostHog', 'Solo Founders'],
 };
 
@@ -171,7 +171,7 @@ export const PARTNER_ADDITIONS = {
   'HR Software': ['Rippling', 'Deel', 'Gusto', 'Lattice', 'Ashby'],
   'Finance & Banking': ['Stripe', 'Ramp', 'Brex', 'Plaid', 'Mercury', 'Revolut', 'Nubank', 'Monzo', 'Chime', 'Wise', 'JPMorgan Chase (kept for its large AI investment)'],
   Community: ['Discord', 'Reddit', 'Circle', 'Skool'],
-  Cybersecurity: ['Wiz (being acquired by Google)', 'CrowdStrike', 'Cloudflare', 'Vanta', '1Password', 'Snyk'],
+  Cybersecurity: ['CrowdStrike', 'Cloudflare', 'Vanta', '1Password', 'Snyk'],
   'Health Care': ['Abridge', 'Hippocratic AI', 'Tempus AI', 'Oscar Health', 'Hinge Health', 'Dialogue'],
   AI: ['OpenAI', 'Anthropic', 'Cursor (SpaceX)', 'Gumloop'],
   'Dev Tools': ['Vercel', 'Supabase', 'Linear', 'Replit', 'Retool', 'PostHog', 'MongoDB'],
@@ -233,7 +233,6 @@ export const PARTNER_HQ = {
   Insitro: 'South San Francisco, CA',
   'Xaira Therapeutics': 'South San Francisco, CA',
   'Novo Nordisk': 'Bagsværd, Denmark',
-  'Wiz (being acquired by Google)': NYC,
   CrowdStrike: 'Austin, TX',
   Cloudflare: SF,
   Vanta: SF,
@@ -371,9 +370,15 @@ export const PEOPLE = TEAM_NAMES.map((name, i) => ({
   id: `p${i + 1}`, name, role: '', teamId: TEAMS[i % TEAMS.length].id,
 }));
 
+// Shown in the notes box on External Conferences, the page with the scorecard estimates.
+export const ESTIMATES_NOTE = 'All numbers are estimates and based on online information from blogs and substacks.';
+
+// Companies taken off the Partnerships page.
+export const REMOVED_PARTNERS = ['Anti Roch', 'Wiz (being acquired by Google)'];
+
 export function seedData() {
   return {
-    fieldMarketingVersion: 7,
+    fieldMarketingVersion: 8,
     companyGoal: { ...COMPANY_GOAL },
     schemaVersions: { events: 3, conferences: 4, leads: 2 },
     peopleVersion: 1,
@@ -405,7 +410,7 @@ export function seedData() {
       documentation: '',
       partnerships: '',
       leadLists: '',
-      externalConferences: '',
+      externalConferences: ESTIMATES_NOTE,
       eventsNyc: '',
       eventsSf: '',
       roadmap: '',

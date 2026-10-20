@@ -7,7 +7,7 @@ export function notesBoxHtml(pageKey) {
   return `
     <div class="page-notes-wrap">
       <div class="section-label">Notes</div>
-      <textarea class="notes-box" id="page-notes-${pageKey}" readonly placeholder="No notes yet.">${escapeHtml(value)}</textarea>
+      <textarea class="notes-box" id="page-notes-${pageKey}" readonly>${escapeHtml(value)}</textarea>
     </div>
   `;
 }

@@ -1,5 +1,5 @@
 import { EXTERNAL_EVENT_FORMATS, REMOVED_INTERNAL_EVENT_IDS, HEAD_OF_CONTENT, NON_TECHNICAL } from './fieldMarketing.js';
-import { seedData, seedInspiration, buildPartnershipSections, mergeCityCompanies, addPartnerAdditions, partnershipSection, applyPartnerHQ, applyPartnerPlacements, PARTNERSHIP_OTHERS_ID, DROPPED_SECTIONS } from './seed.js';
+import { seedData, seedInspiration, buildPartnershipSections, mergeCityCompanies, addPartnerAdditions, partnershipSection, applyPartnerHQ, applyPartnerPlacements, PARTNERSHIP_OTHERS_ID, DROPPED_SECTIONS, REMOVED_PARTNERS, ESTIMATES_NOTE } from './seed.js';
 
 const STORAGE_KEY = 'extendFieldMarketingData.v1';
 
@@ -241,6 +241,8 @@ function load() {
       //   fieldMarketingVersion 6: Social & Content drops the Content Owner column, and Teaser Date becomes
       //   a window one to two weeks before each event.
       //   fieldMarketingVersion 7: Social & Content gains Posting Period (the week before each event).
+      //   fieldMarketingVersion 8: Anti Roch and Wiz leave Partnerships; External Conferences notes say the
+      //   numbers are estimates.
       const fmVersion = stored.fieldMarketingVersion || 0;
       if (fmVersion < fresh.fieldMarketingVersion) {
         if (fmVersion < 1) upgradeToFieldMarketing(stored, fresh);
@@ -286,6 +288,11 @@ function load() {
               if (!row.postingPeriod) row.postingPeriod = fresh.socialPlan[0].entries.find((f) => f.id === row.id)?.postingPeriod || '';
             });
           });
+        }
+        if (fmVersion < 8) {
+          (stored.partnerships || []).forEach((s) => { s.entities = (s.entities || []).filter((e) => !REMOVED_PARTNERS.includes(e.name)); });
+          stored.pageNotes = stored.pageNotes || {};
+          if (!stored.pageNotes.externalConferences) stored.pageNotes.externalConferences = ESTIMATES_NOTE;
         }
         stored.fieldMarketingVersion = fresh.fieldMarketingVersion;
         changed = true;
