@@ -149,6 +149,7 @@ function load() {
       //   partnershipsVersion 2: sections become industries; each company keeps its city. The per-city
       //   sections (and their weekly numbers) are kept in partnershipsByCity.
       //   partnershipsVersion 3: more companies per industry (and a new Others section), skipping names already on the page.
+      //   partnershipsVersion 4: new AI section (before Dev Tools) holding OpenAI, Anthropic, Cursor (SpaceX) and Gumloop.
       const partnershipsVersion = stored.partnershipsVersion || 0;
       if (partnershipsVersion < fresh.partnershipsVersion) {
         let byCity = stored.partnerships;
@@ -171,6 +172,24 @@ function load() {
         if (partnershipsVersion < 3) {
           if (!stored.partnerships.some((s) => s.title === 'Others')) stored.partnerships.push(partnershipSection('Others'));
           addPartnerAdditions(stored.partnerships);
+        }
+        if (partnershipsVersion < 4) {
+          const sections = stored.partnerships;
+          let ai = sections.find((s) => s.title === 'AI');
+          if (!ai) {
+            ai = partnershipSection('AI');
+            const devTools = sections.findIndex((s) => s.title === 'Dev Tools');
+            sections.splice(devTools >= 0 ? devTools : sections.length, 0, ai);
+          }
+          for (const name of ['OpenAI', 'Anthropic', 'Cursor (SpaceX)', 'Gumloop']) {
+            const from = sections.find((s) => s !== ai && s.entities?.some((e) => e.name === name));
+            if (from) {
+              const index = from.entities.findIndex((e) => e.name === name);
+              ai.entities.push(...from.entities.splice(index, 1));
+            } else if (!ai.entities.some((e) => e.name === name)) {
+              ai.entities.push({ name, city: '', links: [] });
+            }
+          }
         }
         stored.partnershipsVersion = fresh.partnershipsVersion;
         changed = true;

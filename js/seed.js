@@ -200,7 +200,7 @@ function seedEventsFunnel(prefix) {
 
 export const PARTNERSHIP_INDUSTRIES = [
   'Documentation Software', 'HR Software', 'Finance', 'Banking', 'Community', 'Pharmaceutical',
-  'Cybersecurity', 'Health Care', 'Dev Tools', 'Sales Tools', 'Insurance', 'Others',
+  'Cybersecurity', 'Health Care', 'AI', 'Dev Tools', 'Sales Tools', 'Insurance', 'Others',
 ];
 
 // Industry for companies we could place; anything else starts in Unassigned.
@@ -215,7 +215,7 @@ const PARTNER_INDUSTRY = {
   'Solo Founders': 'Community',
   Vercel: 'Dev Tools',
   PostHog: 'Dev Tools',
-  Gumloop: 'Dev Tools',
+  Gumloop: 'AI',
   Mintlify: 'Documentation Software',
   Circleback: 'Documentation Software',
 };
@@ -233,10 +233,11 @@ export const PARTNER_ADDITIONS = {
   Pharmaceutical: ['Isomorphic Labs (from Google DeepMind)', 'Recursion', 'Insitro', 'Xaira Therapeutics', 'Novo Nordisk'],
   Cybersecurity: ['Wiz (being acquired by Google)', 'CrowdStrike', 'Cloudflare', 'Vanta', '1Password', 'Snyk'],
   'Health Care': ['Abridge', 'Hippocratic AI', 'Tempus AI', 'Oscar Health', 'Hinge Health'],
-  'Dev Tools': ['Vercel', 'Cursor (SpaceX)', 'Supabase', 'Linear', 'Replit', 'Retool', 'PostHog', 'Anthropic'],
+  AI: ['OpenAI', 'Anthropic', 'Cursor (SpaceX)', 'Gumloop'],
+  'Dev Tools': ['Vercel', 'Supabase', 'Linear', 'Replit', 'Retool', 'PostHog'],
   'Sales Tools': ['Clay', 'Gong', 'Apollo.io', 'Attio', 'HubSpot'],
   Insurance: ['Lemonade', 'Coalition', 'Vouch', 'Root', 'Next Insurance'],
-  Others: ['OpenAI', 'Harvey'],
+  Others: ['Harvey'],
 };
 
 /* Appends PARTNER_ADDITIONS to the matching industry sections, skipping names already anywhere on the page. */
@@ -434,7 +435,7 @@ export function seedData() {
     eventsFunnelVersion: 7,
     eventsNycFunnel: seedEventsFunnel('nyc'),
     eventsSfFunnel: seedEventsFunnel('sf'),
-    partnershipsVersion: 3,
+    partnershipsVersion: 4,
     partnerships: seedPartnerships(),
     eventsSf: withEvents(sections('sf', ['External Events', 'Internal Events'], EVENT_FIELDS), SF_EXTERNAL_EVENTS, SF_INTERNAL_EVENTS),
     pageNotes: {
